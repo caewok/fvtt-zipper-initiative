@@ -1,0 +1,46 @@
+{
+  "name": "zipinitiative",
+  "minimumCoreVersion": "10",
+  "id": "zipinitiative",
+  "title": "Zip Initiative",
+  "version": "This is auto replaced",
+  "library": false,
+  "manifestPlusVersion": "1.0.0",
+  "compatibility": {
+    "minimum": "10.282",
+    "verified": "10.291"
+  },
+  "authors": [
+    {
+      "name": "caewok",
+      "url": "https://github.com/caewok",
+      "discord": "caewok#9192"
+    }
+  ],
+  "relationships": {
+    "requires": [
+      {
+        "id": "lib-wrapper",
+        "type": "module",
+        "manifest": "https://raw.githubusercontent.com/ruipin/fvtt-lib-wrapper/master/module.json"
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/module.js"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json",
+      "title": "Zip Initiative",
+      "description": "Implements zip initiative"
+    }
+  ],
+  "url": "This is auto replaced",
+  "manifest": "This is auto replaced",
+  "download": "This is auto replaced",
+  "license": "LICENSE",
+  "readme": "README.md"
+}
