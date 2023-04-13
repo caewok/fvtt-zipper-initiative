@@ -32,11 +32,11 @@ Hooks.once("ready", () => {
 
   new ChangelogBuilder()
     .addEntry({
-      version: "0.0.1",
-      title: "Welcome to Zip Initiative!",
+      version: "0.0.2",
+      title: "Welcome to Zipper Initiative!",
       body: `\
-          Zip Initiative uses the initiative strategy described by [@Taking20](https://www.youtube.com/@Taking20)
-          in [YouTube](https://www.youtube.com/watch?v=SXleyDvtqls). Under zip initiative,
+          Zipper Initiative uses the initiative strategy described by [@Taking20](https://www.youtube.com/@Taking20)
+          in [YouTube](https://www.youtube.com/watch?v=SXleyDvtqls). Under zipper initiative,
           PCs and NPCs are sorted alternating in the initiative order, with a single NPC "leader"
           used to determine which side goes first.
 
