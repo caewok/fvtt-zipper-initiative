@@ -104,13 +104,13 @@ class ChangelogBuilder {
     }
 
     return new Dialog({
-      title: "Zip Initiative: Changelog",
+      title: "Zipper Initiative: Changelog",
       content,
       buttons: {
         view_documentation: {
           icon: `<i class="fas fa-book"></i>`,
           label: "View documentation",
-          callback: () => window.open("https://github.com/caewok/fvtt-zip-initiative/blob/master/README.md")
+          callback: () => window.open("https://github.com/caewok/fvtt-zipper-initiative/blob/master/README.md")
         },
         dont_show_again: {
           icon: `<i class="fas fa-times"></i>`,
