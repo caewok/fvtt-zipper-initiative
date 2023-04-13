@@ -94,9 +94,16 @@ export async function rollAllCombat(options={}) {
   PC.rolled = combatants.filter(c => !c.isNPC && c.initiative !== null);
   NPC.rolled = combatants.filter(c => c.isNPC && c.initiative !== null);
 
-  // Dnd5e: might require decimal increments
-  const useDecimals = game.system.id === "dnd5e" && game.settings.get("dnd5e", FLAGS.DND5E.DEX_TIEBREAKER);
-  const initMod = useDecimals ? 0.01 : 1;
+  // Roll NPC initiative (silently) and sort by that initiative
+  for ( const npc of NPC.unrolled ) {
+    const roll = npc.getInitiativeRoll();
+    await roll.evaluate({async: true});
+    npc._zipInit = roll.total;
+  }
+  NPC.unrolled.sort((a, b) => b._zipInit - a._zipInit);
+
+  // Sort PCs by initiative
+  PC.rolled.sort((a, b) => b.initiative - a.initiative);
 
   // Determine the leader NPC.
   // Select the candidate with the highest bonus; random otherwise.
@@ -117,43 +124,71 @@ export async function rollAllCombat(options={}) {
   const index = NPC.unrolled.indexOf(leaderNPC.combatant);
   if ( ~index ) NPC.unrolled.splice(index, 1);
 
-  // Sort PCs by initiative
-  PC.rolled.sort((a, b) => b.initiative - a.initiative);
-
-  // Determine leaderNPC initiative
+  // Determine if the PCs or the NPC leader rolled the best initiative
   const bestPCInit = PC.rolled[0]?.initiative ?? Number.NEGATIVE_INFINITY;
-  const PCsWon = bestPCInit > leaderNPC.combatant.initiative;
-//   const leaderInit = PCsWon ? bestPCInit : bestPCInit + 1;
-//   updates.push({ _id: leaderNPC.combatant.id, initiative: leaderInit});
+  const leaderInit = leaderNPC.combatant.initiative ?? leaderNPC.combatant._zipInit;
+  const PCsWon = bestPCInit >= leaderInit;
+  // updates.push({ _id: leaderNPC.combatant.id, initiative: leaderInit});
 
-  // Roll NPC initiative (silently) and sort by that initiative
-  for ( const npc of NPC.unrolled ) {
-    const roll = npc.getInitiativeRoll();
-    await roll.evaluate({async: true});
-    npc._zipInit = roll.total;
+  if ( PCsWon ) {
+    // Leader requires a new initiative to place in zip order.
+    NPC.unrolled.unshift(leaderNPC.combatant);
+  } else {
+    // Leader has the highest initiative; keep and rank 0.
+    updates.push({ _id: leaderNPC.combatant.id, initiative: leaderInit});
+    await leaderNPC.combatant.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, 0);
   }
-  NPC.unrolled.sort((a, b) => b._zipInit - a._zipInit);
-  NPC.unrolled.unshift(leaderNPC.combatant)
 
   // Zip sort remaining unrolled NPCs into PC list
   // PCs won: PC[0] = 0, NPC[0] = 1, PC[1] = 2, NPC[1] = 3...
   // PCs lost: NPC[0] = 0, PC[0] = 1, NPC[1] = 2, PC[1] = 3...
   const numPCs = PC.rolled.length;
   const numNPCs = NPC.unrolled.length;
-  if ( PCsWon ) await PC.rolled[0].setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, 0);
   let j = 0;
-  let rank = Number(PCsWon);
-  for ( let i = Number(PCsWon); i < numPCs && j < numNPCs; i += 1, j += 1, rank += 2 ) {
+  let rank = Number(!PCsWon); // PCsWon: 0; PCsLost: 1
+  for ( let i = 0; i < numPCs && j < numNPCs; i += 1, j += 1, rank += 2 ) {
     const currPC = PC.rolled[i];
     const currNPC = NPC.unrolled[j];
-    const PCinit = currPC.initiative;
-    const NPCinit = PCinit + initMod;
-    const PCrank = rank + 1;
-    const NPCrank = rank;
-    updates.push({ _id: currNPC.id, initiative: NPCinit });
-    await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, NPCrank);
-    await currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, PCrank);
+    updates.push({ _id: currNPC.id, initiative: currPC.initiative });
+    await currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank);
+    await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank + 1);
   }
+
+//   PCswon
+//   rank = 0
+//   currPC = PC[0]
+//   currNPC = NPC[0]
+//   currNPC.init = currPC.init
+//   currPC.rank = 0 (rank)
+//   currNPC.rank = 1 (rank + 1)
+//
+//   ...
+//   rank = 2
+//   currPC = PC[1]
+//   currNPC = NPC[1]
+//   currNPC.init = currPC.init
+//   currPC.rank = 2 (rank)
+//   currNPC.rank = 3 (rank + 1)
+//
+//   PCslost
+//   currNPC[0] is leader, rank 0
+//
+//   rank = 1
+//   currPC = PC[0]
+//   currNPC = NPC[0]
+//   currNPC.init = currPC.init
+//   currPC.rank = 1 (rank)
+//   currNPC.rank = 2 (rank + 1)
+//
+//   ...
+//
+//   rank = 3 (+2)
+//   currPC = PC[1]
+//   currNPC = NPC[1]
+//   currNPC.init = currPC.init
+//   currPC.rank = 3 (rank)
+//   currNPC.rank = 4 (rank + 1)
+
 
   // Remainder of NPCs go at the bottom, randomly.
   // To make things interesting, roll their initiatives.
@@ -296,8 +331,3 @@ Morthos    5.12   null
 Ogre       2.08   null
 
 */
-
-
-
-
-
