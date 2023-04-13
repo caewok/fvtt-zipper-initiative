@@ -130,23 +130,6 @@ export async function rollAllCombat(options={}) {
   // Zip sort remaining unrolled NPCs into PC list
   // PCs won: PC[0] = 0, NPC[0] = 1, PC[1] = 2, NPC[1] = 3...
   // PCs lost: NPC[0] = 0, PC[0] = 1, NPC[1] = 2, PC[1] = 3...
-
-
-//   i = 1 (PCsWon)
-//   j = 0
-//   rank = 1
-//   PCsWon: PC[1], NPC[0]
-//   NPCinit = PCinit + initMod
-//   PCrank = 2  => i * 2
-//   NPCrank = 1 => i * 2 - 1
-//
-//   i = 0 (!PCsWon)
-//   j = 0
-//   rank = 0
-//   PCsLost: PC[0], NPC[0]
-//   NPCinit = PCinit + initMod
-//   PCrank = 1 => i * 2 + 1
-//   NPCrank = 0 => i * 2
   const numPCs = PC.rolled.length;
   const numNPCs = NPC.unrolled.length;
   if ( PCsWon ) await PC.rolled[0].setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, 0);
