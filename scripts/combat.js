@@ -219,16 +219,16 @@ export function _sortCombatantsCombat(a, b) {
   const aHasInit = Number.isNumeric(a.initiative);
   const bHasInit = Number.isNumeric(b.initiative);
 
-  const aRank = a.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK);
-  const bRank = b.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK);
+  const aRank = a.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK) ?? Number.NEGATIVE_INFINITY;
+  const bRank = b.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK) ?? Number.NEGATIVE_INFINITY;
 
   // Sort those that have rolled initiative first.
-  if ( aHasInit ^ bHasInit ) return (bHasInit - aHasInit) || (bRank - aRank);
+  if ( aHasInit ^ bHasInit ) return (bHasInit - aHasInit) || (aRank - bRank);
 
   // Given the above test, ia and ib will either both have initiative or both have bonuses.
   const ia = aHasInit ? a.initiative : initBonus(a.token);
   const ib = bHasInit ? b.initiative : initBonus(b.token);
-  return (ib - ia) || a.token.name.localeCompare(b.token.name);
+  return (ib - ia) || (aRank - bRank) || a.token.name.localeCompare(b.token.name);
 }
 
 
