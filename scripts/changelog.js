@@ -35,7 +35,19 @@ Hooks.once("ready", () => {
       version: "0.0.1",
       title: "Welcome to Zip Initiative!",
       body: `\
-          This is the initial release of Zip Initiative.`
+          Zip Initiative uses the initiative strategy described by [@Taking20](https://www.youtube.com/@Taking20)
+          in [YouTube](https://www.youtube.com/watch?v=SXleyDvtqls). Under zip initiative,
+          PCs and NPCs are sorted alternating in the initiative order, with a single NPC "leader"
+          used to determine which side goes first.
+
+
+          **Manual Rolls**: Rolling a single NPC manually will cause that combatant to be the NPC leader. Rolling
+          multiple NPCs manually will cause one to be selected leader and the others to keep their
+          initiative score, ignoring zip sort for those combatants only.
+
+
+          **Reset Initative setting**: A setting is provided to optionally force initiative to be reset each round.
+          `
     })
     .build()
     ?.render(true);
