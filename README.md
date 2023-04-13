@@ -1,18 +1,18 @@
-[![Version (latest)](https://img.shields.io/github/v/release/caewok/fvtt-zip-initiative)](https://github.com/caewok/fvtt-zip-initiative/releases/latest)
-[![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-zip-initiative/releases/latest/download/module.json&label=Foundry%20Version&query=$.compatibility.minimum&colorB=blueviolet)](https://github.com/caewok/fvtt-zip-initiative/releases/latest)
-[![License](https://img.shields.io/github/license/caewok/fvtt-zip-initiative)](LICENSE)
-![Latest Release Download Count](https://img.shields.io/github/downloads/caewok/fvtt-zip-initiative/latest/module.zip)
+[![Version (latest)](https://img.shields.io/github/v/release/caewok/fvtt-zipper-initiative)](https://github.com/caewok/fvtt-zipper-initiative/releases/latest)
+[![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-zipper-initiative/releases/latest/download/module.json&label=Foundry%20Version&query=$.compatibility.minimum&colorB=blueviolet)](https://github.com/caewok/fvtt-zipper-initiative/releases/latest)
+[![License](https://img.shields.io/github/license/caewok/fvtt-zipper-initiative)](LICENSE)
+![Latest Release Download Count](https://img.shields.io/github/downloads/caewok/fvtt-zipper-initiative/latest/module.zip)
 ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https%3A%2F%2Fforge-vtt.com%2Fapi%2Fbazaar%2Fpackage%2Fzipinitiative&colorB=4aa94a)
 
-# Zip Initiative
+# Zipper Initiative
 
-This module uses the zip initiative as described by [@Taking20](https://www.youtube.com/@Taking20) in [YouTube](https://www.youtube.com/watch?v=SXleyDvtqls).
+This module uses the zipper initiative as described by [@Taking20](https://www.youtube.com/@Taking20) in [YouTube](https://www.youtube.com/watch?v=SXleyDvtqls).
 
-Under zip initiative, PCs and NPCs are sorted alternating in the initiative order. One (mostly aesthetic) change from @Taking20 is that an NPC will be given initiative equal to the PC that it goes after, instead of one less initiative value. This is primarily to better resolve ties without losing the alternating order, as well as to more easily resolve initiative that uses Dexterity to break ties.
+Under zipper initiative, PCs and NPCs are sorted alternating in the initiative order. One (mostly aesthetic) change from @Taking20 is that an NPC will be given initiative equal to the PC that it goes after, instead of one less initiative value. This is primarily to better resolve ties without losing the alternating order, as well as to more easily resolve initiative that uses Dexterity to break ties.
 
 # Installation
 
-Add this [Manifest URL](https://github.com/caewok/fvtt-zip-initiative/releases/latest/download/module.json) in Foundry to install.
+Add this [Manifest URL](https://github.com/caewok/fvtt-zipper-initiative/releases/latest/download/module.json) in Foundry to install.
 
 ## Dependencies
 - [libWrapper](https://github.com/ruipin/fvtt-lib-wrapper)
@@ -58,10 +58,10 @@ Any PC or NPC combatant can roll manually as normal, using the die next to their
 Rolling a single NPC manually acts as an override, causing that NPC to be considered the highest regardless of initiative bonus. If multiple NPCs are rolled manually, it is assumed the GM wants one of those NPCs to be considered the highest---chosen by highest initiative bonus if available or randomly otherwise.
 
 ## Roll NPCs button
-If the GM hits the roll NPC button, the highest NPC rolls for initiative if no NPCs have yet rolled, and the system waits for PCs to finish rolling before proceeding. PCs and NPCs are then zip sorted.
+If the GM hits the roll NPC button, the highest NPC rolls for initiative if no NPCs have yet rolled, and the system waits for PCs to finish rolling before proceeding. PCs and NPCs are then zipper sorted.
 
 ## Roll All button
-If the GM hits the Roll All button, all PCs are rolled automatically, followed by determination of the highest NPC and zip sorting.
+If the GM hits the Roll All button, all PCs are rolled automatically, followed by determination of the highest NPC and zipper sorting.
 
 ## Settings
 A setting is available to force initiative to reset every round.
