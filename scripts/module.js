@@ -10,6 +10,9 @@ import { log } from "./util.js";
 // Patching
 import { registerZipInitiative } from "./patching.js";
 
+// Settings
+import { registerSettings } from "./settings.js";
+
 // Self-executing scripts for hooks
 import "./changelog.js";
 
@@ -21,11 +24,14 @@ Hooks.once("devModeReady", ({ registerPackageDebugFlag }) => {
   registerPackageDebugFlag(MODULE_ID);
 });
 
-Hooks.once("init", async function() {
+Hooks.once("init", () => {
   log("Initializing...");
   registerZipInitiative();
 });
 
+Hooks.once("setup", () => {
+  registerSettings();
+});
 
 /* Combat Tracker Hooks
 

@@ -8,6 +8,7 @@ Hooks
 "use strict";
 
 import { MODULE_ID, FLAGS } from "./const.js";
+import { getSetting, SETTINGS } from "./settings.js";
 
 /* Roll NPCs:
 - Roll the highest NPC if not already
@@ -43,6 +44,7 @@ async function createCombatantHook(combatant, _options, _id) {
  * Hook updateCombat.
  */
 Hooks.on("updateCombat", updateCombatHook);
+
 async function updateCombatHook(combat, _change, _opts, _id) {
   combat.combatants.forEach(c => {
     if ( c.initiative === null ) resetInitRank(c); // TO-DO: Do we need to await this function?
@@ -50,8 +52,14 @@ async function updateCombatHook(combat, _change, _opts, _id) {
 }
 
 /**
- * Hook nextRound
+ * Hook combatRound.
  */
+Hooks.on("combatRound", combatRoundHook);
+
+async function combatRoundHook(combat, _updateData, opts) {
+  if ( !getSetting(SETTINGS.RESET_EACH_ROUND) || opts.direction < 0 ) return;
+  await combat.resetAll();
+}
 
 /**
  * Wrap async Combat.prototype.rollAll
