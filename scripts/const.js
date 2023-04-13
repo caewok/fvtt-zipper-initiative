@@ -2,7 +2,7 @@
 */
 "use strict";
 
-export const MODULE_ID = "zipinitiative";
+export const MODULE_ID = "zipperinitiative";
 
 export const FLAGS = {
   COMBATANT: {
