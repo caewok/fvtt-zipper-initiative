@@ -219,7 +219,7 @@ export async function rollAllCombat(options={}) {
 export async function rollNPCCombat(options={}) {
   // Wait until all PCs have rolled.
   const MS_DELAY = 1000;
-  const MAX_ITER = 15;
+  const MAX_ITER = CONFIG[MODULE_ID].maxSeconds;
   const combatants = [...this.combatants];
 
   const allPCsRolled = () => combatants.every(c => !c.isOwner || c.isNPC || c.initiative !== null);

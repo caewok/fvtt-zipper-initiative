@@ -27,6 +27,17 @@ Hooks.once("devModeReady", ({ registerPackageDebugFlag }) => {
 Hooks.once("init", () => {
   log("Initializing...");
   registerZipInitiative();
+
+  // Set configuration values used internally
+  CONFIG[MODULE_ID] = {
+    /**
+     * Maximum number of seconds to wait before timing out of the rollNPCs due to
+     * players not yet rolling. If this value is 0 or less, it will never time out.
+     * @type {number}
+     */
+    maxSeconds: 15
+  }
+
 });
 
 Hooks.once("setup", () => {
