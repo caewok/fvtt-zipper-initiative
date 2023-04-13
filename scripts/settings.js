@@ -7,7 +7,8 @@ game
 import { MODULE_ID } from "./const.js";
 
 export const SETTINGS = {
-  CHANGELOG: "changelog"
+  CHANGELOG: "changelog",
+  RESET_EACH_ROUND: "resetEachRound"
 };
 
 export function getSetting(settingName) {
@@ -21,4 +22,15 @@ export async function toggleSetting(settingName) {
 
 export async function setSetting(settingName, value) {
   return await game.settings.set(MODULE_ID, settingName, value);
+}
+
+export function registerSettings() {
+  game.settings.register(MODULE_ID, SETTINGS.RESET_EACH_ROUND, {
+    name: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.RESET_EACH_ROUND}.Name`),
+    hint: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.RESET_EACH_ROUND}.Hint`),
+    type: Boolean,
+    default: false,
+    scope: "world",
+    config: true
+  });
 }

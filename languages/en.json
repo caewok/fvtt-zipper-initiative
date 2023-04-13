@@ -1,3 +1,4 @@
 {
-
+  "zipinitiative.settings.resetEachRound.Name": "Reset Initiative Each Round",
+  "zipinitiative.settings.resetEachRound.Hint": "If enabled, all combatants must re-roll initiative each round."
 }
