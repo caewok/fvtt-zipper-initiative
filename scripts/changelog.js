@@ -54,7 +54,7 @@ Hooks.once("ready", () => {
       version: "0.1.0",
       title: "v11",
       body: `\
-          Zipper Initiative confirmed to work with v11.
+          Zipper Initiative verified with v11.
           `
     })
     .build()
