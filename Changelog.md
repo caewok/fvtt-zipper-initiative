@@ -1,3 +1,6 @@
+## 0.1.0
+Updated for v11.
+
 ## 0.0.2
 Change name to Zipper Initiative and repository to fvtt-zipper-initiative.
 

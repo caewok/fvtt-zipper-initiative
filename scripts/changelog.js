@@ -49,6 +49,14 @@ Hooks.once("ready", () => {
           **Reset Initative setting**: A setting is provided to optionally force initiative to be reset each round.
           `
     })
+
+    .addEntry({
+      version: "0.1.0",
+      title: "v11",
+      body: `\
+          Zipper Initiative verified with v11.
+          `
+    })
     .build()
     ?.render(true);
 });
