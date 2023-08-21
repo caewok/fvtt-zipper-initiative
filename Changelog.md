@@ -1,3 +1,6 @@
+## 0.1.1
+Fix for user permission errors.
+
 ## 0.1.0
 Verified for v11.
 
