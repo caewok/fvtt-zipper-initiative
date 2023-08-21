@@ -36,7 +36,8 @@ async function resetInitRank(combatant) {
  */
 Hooks.on("createCombatant", createCombatantHook);
 
-async function createCombatantHook(combatant, _options, _id) {
+async function createCombatantHook(combatant, _options, id) {
+  if ( id !== game.user.id ) return;
   await resetInitRank(combatant);
 }
 
@@ -45,7 +46,8 @@ async function createCombatantHook(combatant, _options, _id) {
  */
 Hooks.on("updateCombat", updateCombatHook);
 
-async function updateCombatHook(combat, _change, _opts, _id) {
+async function updateCombatHook(combat, _change, _opts, id) {
+  if ( id !== game.user.id ) return;
   combat.combatants.forEach(c => {
     if ( c.initiative === null ) resetInitRank(c); // TO-DO: Do we need to await this function?
   });
