@@ -57,6 +57,17 @@ Hooks.once("ready", () => {
           Zipper Initiative verified with v11.
           `
     })
+
+    .addEntry({
+      version: "0.1.2",
+      title: "v11",
+      body: `\
+          Per @GhostwheelX's request, added a game setting that to choose the NPC leader based on the best NPC initiative roll,
+          instead of by best NPC bonus to initiative. Note that you can still manually roll a single NPC, which will then become the leader,
+          or multiple NPCs, in which case the leader will be chosen amongst those manually rolled.
+          `
+    })
+
     .build()
     ?.render(true);
 });

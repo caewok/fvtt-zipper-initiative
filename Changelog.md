@@ -1,3 +1,6 @@
+## 0.1.2
+Add game setting to select leader by best initiative (versus the default: by best initiative bonus). Closes issue #1.
+
 ## 0.1.1
 Fix for user permission errors.
 
