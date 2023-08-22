@@ -1,4 +1,7 @@
 {
   "zipperinitiative.settings.resetEachRound.Name": "Reset Initiative Each Round",
-  "zipperinitiative.settings.resetEachRound.Hint": "If enabled, all combatants must re-roll initiative each round."
+  "zipperinitiative.settings.resetEachRound.Hint": "If enabled, all combatants must re-roll initiative each round.",
+
+  "zipperinitiative.settings.npcLeaderHighestInitiative.Name": "Best NPC Roll is Leader",
+  "zipperinitiative.settings.npcLeaderHighestInitiative.Hint": "If enabled, use the NPC that rolls the best initiative as the leader. If disabled, use the NPC with the highest initiative bonus. Note: Regardless of this setting, if the GM rolls any NPCs manually, only those manually rolled will be considered eligible to be the leader."
 }

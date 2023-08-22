@@ -109,15 +109,27 @@ export async function rollAllCombat(options={}) {
 
   // Determine the leader NPC.
   // Select the candidate with the highest bonus; random otherwise.
-  const candidates = NPC.rolled.length ? NPC.rolled : NPC.unrolled;
-  const leaderNPC = candidates.reduce((maxNPC, c) => {
+  // If NPC_LEADER_HIGHEST is enabled, use highest initiative instead.
+  const selectByBonus = (maxNPC, c) => {
     const bonus = initBonus(c.token);
     if ( bonus > maxNPC.initBonus ) {
       maxNPC.initBonus = bonus;
       maxNPC.combatant = c;
     }
     return maxNPC;
-  }, { initBonus: Number.NEGATIVE_INFINITY, combatant: null });
+  };
+
+  const selectByInitiative = (maxNPC, c) => {
+    if ( c.initiative > maxNPC.initBonus ) {
+      maxNPC.initBonus = c.initiative;
+      maxNPC.combatant = c;
+    }
+    return maxNPC;
+  };
+
+  const leaderSelectionFn = getSetting(SETTINGS.NPC_LEADER_HIGHEST_INIT) ? selectByInitiative : selectByBonus;
+  const candidates = NPC.rolled.length ? NPC.rolled : NPC.unrolled;
+  const leaderNPC = candidates.reduce(leaderSelectionFn, { initBonus: Number.NEGATIVE_INFINITY, combatant: null });
 
   // Fall back on random selection
   if ( !leaderNPC.combatant ) leaderNPC.combatant = candidates[Math.floor(Math.random() * candidates.length)];
