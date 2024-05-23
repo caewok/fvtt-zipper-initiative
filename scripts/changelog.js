@@ -68,6 +68,16 @@ Hooks.once("ready", () => {
           `
     })
 
+    .addEntry({
+      version: "0.1.3",
+      title: "Dice-So-Nice Setting",
+      body: `\
+          Per @noncasus's request, added a game setting that will force Dice-So-Nice initiative rolls when rolling for
+          all NPCs or all tokens. The rolls reflect real calculations that are used to order the NPCs, but
+          ultimately their initiative may differ dramatically from the rolls to facilitate the zipper initiative order.
+          `
+    })
+
     .build()
     ?.render(true);
 });

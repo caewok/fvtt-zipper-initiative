@@ -12,3 +12,10 @@ export const FLAGS = {
     DEX_TIEBREAKER: "initiativeDexTiebreaker"
   }
 };
+
+export const MODULES_ACTIVE = { API: {} };
+
+// Hook init b/c game.modules is not initialized at start.
+Hooks.once("init", function() {
+  MODULES_ACTIVE.DSN = game.modules.get("dice-so-nice")?.active;
+});

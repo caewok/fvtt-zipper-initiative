@@ -1,3 +1,7 @@
+## 0.1.3
+Add setting to control whether Dice-So-Nice rolls are used when rolling initiative for all NPCs or all combatants. Closes #3.
+Addressed a deprecation warning re `CONFIG.DND5E.initiativeAbility`. Closes #2.
+
 ## 0.1.2
 Add game setting to select leader by best initiative (versus the default: by best initiative bonus). Closes issue #1.
 

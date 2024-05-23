@@ -7,7 +7,7 @@ Hooks
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 "use strict";
 
-import { MODULE_ID, FLAGS } from "./const.js";
+import { MODULE_ID, FLAGS, MODULES_ACTIVE } from "./const.js";
 import { getSetting, SETTINGS } from "./settings.js";
 
 /* Roll NPCs:
@@ -96,10 +96,15 @@ export async function rollAllCombat(options={}) {
   PC.rolled = combatants.filter(c => !c.isNPC && c.initiative !== null);
   NPC.rolled = combatants.filter(c => c.isNPC && c.initiative !== null);
 
-  // Roll NPC initiative (silently) and sort by that initiative
+  // Roll NPC initiative and sort by that initiative
   for ( const npc of NPC.unrolled ) {
     const roll = npc.getInitiativeRoll();
     await roll.evaluate({async: true});
+
+    // Force DSN to show the roll despite not going to chat.
+    // https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/wikis/API/Roll
+    if ( MODULES_ACTIVE.DSN
+      && game.settings.get(MODULE_ID, SETTINGS.USE_DSN) ) game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await.
     npc._zipInit = roll.total;
   }
   NPC.unrolled.sort((a, b) => b._zipInit - a._zipInit);
@@ -316,7 +321,7 @@ function initBonus(token) {
   // Ability tiebreaker
   const system = token.actor.system;
   const init = system.attributes?.init;
-  const abilityId = init?.ability || CONFIG.DND5E.initiativeAbility;
+  const abilityId = init?.ability || CONFIG.DND5E.defaultAbilities?.initiative || CONFIG.DND5E.initiativeAbility; // For < dnd5e 3.1
   const tiebreaker = game.settings.get("dnd5e", "initiativeDexTiebreaker");
   if ( tiebreaker && ("abilities" in system) ) {
     const abilityValue = system.abilities[abilityId]?.value;
