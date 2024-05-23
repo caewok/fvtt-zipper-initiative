@@ -1,5 +1,5 @@
 [![Version (latest)](https://img.shields.io/github/v/release/caewok/fvtt-zipper-initiative)](https://github.com/caewok/fvtt-zipper-initiative/releases/latest)
-[![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-zipper-initiative/releases/latest/download/module.json&label=Foundry%20Version&query=$.minimumCoreVersion&colorB=blueviolet)](https://github.com/caewok/fvtt-zipper-initiative/releases/latest)
+[![Foundry Version](https://img.shields.io/badge/dynamic/json.svg?url=https://github.com/caewok/fvtt-zipper-initiative/releases/latest/download/module.json&label=Foundry%20Version&query=$.compatibility.verified&colorB=blueviolet)](https://github.com/caewok/fvtt-zipper-initiative/releases/latest)
 [![License](https://img.shields.io/github/license/caewok/fvtt-zipper-initiative)](LICENSE)
 
 ![Forge Installs](https://img.shields.io/badge/dynamic/json?label=Forge%20Installs&query=package.installs&suffix=%25&url=https://forge-vtt.com/api/bazaar/package/zipperinitiative&colorB=4aa94a)
