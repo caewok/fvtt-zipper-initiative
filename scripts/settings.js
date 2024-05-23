@@ -9,7 +9,8 @@ import { MODULE_ID } from "./const.js";
 export const SETTINGS = {
   CHANGELOG: "changelog",
   RESET_EACH_ROUND: "resetEachRound",
-  NPC_LEADER_HIGHEST_INIT: "npcLeaderHighestInitiative"
+  NPC_LEADER_HIGHEST_INIT: "npcLeaderHighestInitiative",
+  USE_DSN: "useDSN" // Dice So Nice rolls
 };
 
 export function getSetting(settingName) {
@@ -40,6 +41,15 @@ export function registerSettings() {
     hint: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.NPC_LEADER_HIGHEST_INIT}.Hint`),
     type: Boolean,
     default: false,
+    scope: "world",
+    config: true
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.USE_DSN, {
+    name: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.USE_DSN}.Name`),
+    hint: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.USE_DSN}.Hint`),
+    type: Boolean,
+    default: true,
     scope: "world",
     config: true
   });
