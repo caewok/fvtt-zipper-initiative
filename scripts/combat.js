@@ -316,7 +316,7 @@ function initBonus(token) {
   // Ability tiebreaker
   const system = token.actor.system;
   const init = system.attributes?.init;
-  const abilityId = init?.ability || CONFIG.DND5E.initiativeAbility;
+  const abilityId = init?.ability || CONFIG.DND5E.defaultAbilities.initiative;
   const tiebreaker = game.settings.get("dnd5e", "initiativeDexTiebreaker");
   if ( tiebreaker && ("abilities" in system) ) {
     const abilityValue = system.abilities[abilityId]?.value;
