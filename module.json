@@ -1,14 +1,13 @@
 {
   "name": "zipperinitiative",
-  "minimumCoreVersion": "10",
   "id": "zipperinitiative",
   "title": "Zipper Initiative",
   "version": "This is auto replaced",
   "library": false,
   "manifestPlusVersion": "1.0.0",
   "compatibility": {
-    "minimum": "10.282",
-    "verified": "11.307"
+    "minimum": "12",
+    "verified": "12.324"
   },
   "authors": [
     {

@@ -99,7 +99,7 @@ export async function rollAllCombat(options={}) {
   // Roll NPC initiative and sort by that initiative
   for ( const npc of NPC.unrolled ) {
     const roll = npc.getInitiativeRoll();
-    await roll.evaluate({async: true});
+    await roll.evaluate();
 
     // Force DSN to show the roll despite not going to chat.
     // https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/wikis/API/Roll
@@ -244,6 +244,7 @@ export async function rollNPCCombat(options={}) {
   const allPCsRolled = () => combatants.every(c => !c.isOwner || c.isNPC || c.initiative !== null);
   const delay = () => new Promise(resolve => setTimeout(resolve, MS_DELAY));
 
+  if ( !allPCsRolled() ) ui.notifications.notify(`Waiting ${MAX_ITER} seconds for PCs to roll...`);
   let iter = 0;
   while ( iter < MAX_ITER && !allPCsRolled() ) {
     iter += 1;
@@ -293,7 +294,7 @@ export function _sortCombatantsCombat(a, b) {
  * @returns {number} Bonus amount
  */
 function initBonus(token) {
-  if ( game.system.id !== "dnd5e" ) return Number.NEGATIVE_INFINITY;
+  if ( game.system.id !== "dnd5e" || !token.actor ) return Number.NEGATIVE_INFINITY;
 
   const roll = token.actor.getInitiativeRoll();
   let bonus = 0;

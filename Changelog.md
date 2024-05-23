@@ -1,3 +1,6 @@
+## 0.2.0
+FoundryVTT v12 compatibility. Addressed some deprecations, which means this module needs v12 to work.
+
 ## 0.1.3
 Add setting to control whether Dice-So-Nice rolls are used when rolling initiative for all NPCs or all combatants. Closes #3.
 Addressed a deprecation warning re `CONFIG.DND5E.initiativeAbility`. Closes #2.
