@@ -6,6 +6,8 @@
 ![Latest Release Download Count](https://img.shields.io/github/downloads/caewok/fvtt-zipper-initiative/latest/module.zip)
 ![All Downloads](https://img.shields.io/github/downloads/caewok/fvtt-zipper-initiative/total)
 
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/H2H3Y7IJW)
+
 # Zipper Initiative
 
 This module uses the zipper initiative as described by [@Taking20](https://www.youtube.com/@Taking20) in [YouTube](https://www.youtube.com/watch?v=SXleyDvtqls).
