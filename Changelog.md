@@ -1,3 +1,6 @@
+## 0.2.1
+Fix error re undefined manifest key. Closes #5.
+
 ## 0.2.0
 FoundryVTT v12 compatibility. Addressed some deprecations, which means this module needs v12 to work.
 
