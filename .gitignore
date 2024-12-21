@@ -2,3 +2,7 @@
 .DS_Store
 
 sync_module.sh
+
+eslint.config.mjs
+
+.eslintrc.json
