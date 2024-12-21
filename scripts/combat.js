@@ -71,12 +71,13 @@ async function combatRoundHook(combat, _updateData, opts) {
  * @returns {number}
  */
 function numberNPCsInFirstGroup(numPCs, numNPCs, PCsWon) {
+  if ( numNPCs < 1 ) return 0;
   if ( numPCs >= numNPCs ) return 1; // E.g. pnpn or npnp
   if ( !PCsWon && numPCs >= (numNPCs - 1) ) return 1; // E.g. npnpn
 
   // Always tries to put NPCs in a final group.
   const numGroups = PCsWon ? numPCs : (numPCs + 1);
-  return numNPCs % numGroups;
+  return Math.floor(numNPCs / numGroups);
 }
 
 /**
@@ -192,6 +193,8 @@ export async function rollAllCombat(options={}) {
   // We don't need the rolled and unrolled arrays anymore, so just copy over them.
   PC.remaining = PC.rolled;
   NPC.remaining = NPC.unrolled;
+  const interleaveNPCs = getSetting(SETTINGS.INTERLEAVE_NPCS);
+  let rank = Number(!PCsWon); // PCsWon: 0; PCsLost: 1
 
   if ( PCsWon ) {
     // Leader requires a new initiative to place in zip order.
@@ -200,9 +203,19 @@ export async function rollAllCombat(options={}) {
     // Leader has the highest initiative; keep and rank 0.
     updates.push({ _id: leaderNPC.id, initiative: leaderInit});
     await leaderNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, 0);
+
+    if ( interleaveNPCs ) {
+      // Add in additional NPCs. Minus one for the leader.
+      const numAdditional = numberNPCsInFirstGroup(PC.remaining.length, NPC.remaining.length, PCsWon) - 1;
+      for ( let i = 0; i < numAdditional; i += 1 ) {
+        const currNPC = NPC.remaining.shift();
+        updates.push({ _id: currNPC.id, initiative: leaderInit });
+        await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
+      }
+    }
   }
 
-//   const interleaveNPCs = getSetting(SETTINGS.INTERLEAVE_NPCS);
+//
 //   const numNPCsPerGroup = interleaveNPCs ? : 1;
 //   if ( interleaveNPCs ) {
 //
@@ -215,13 +228,17 @@ export async function rollAllCombat(options={}) {
   // PCs won: PC[0] = 0, NPC[0] = 1, PC[1] = 2, NPC[1] = 3...
   // PCs lost: NPC[0] = 0, PC[0] = 1, NPC[1] = 2, PC[1] = 3...
   // While PCs remain, zip sort PC --> NPC.
-  let rank = Number(!PCsWon); // PCsWon: 0; PCsLost: 1
+
   while ( PC.remaining.length ) {
+    // Treat as PCs won b/c we are adding the PC first
+    const numNPCs = interleaveNPCs ? numberNPCsInFirstGroup(PC.remaining.length, NPC.remaining.length, true) : 1;
     const currPC = PC.remaining.shift();
-    const currNPC = NPC.remaining.shift();
-    updates.push({ _id: currNPC.id, initiative: currPC.initiative });
     await currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
-    await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
+    for ( let i = 0; i < numNPCs; i += 1 ) {
+      const currNPC = NPC.remaining.shift();
+      updates.push({ _id: currNPC.id, initiative: currPC.initiative });
+      await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
+    }
   }
 
 //   const numPCs = PC.remaining.length;
