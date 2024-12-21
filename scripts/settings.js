@@ -10,6 +10,7 @@ export const SETTINGS = {
   CHANGELOG: "changelog",
   RESET_EACH_ROUND: "resetEachRound",
   NPC_LEADER_HIGHEST_INIT: "npcLeaderHighestInitiative",
+  INTERLEAVE_NPCS: "npcInterleave",
   USE_DSN: "useDSN" // Dice So Nice rolls
 };
 
@@ -50,6 +51,15 @@ export function registerSettings() {
     hint: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.USE_DSN}.Hint`),
     type: Boolean,
     default: true,
+    scope: "world",
+    config: true
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.INTERLEAVE_NPCS, {
+    name: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.INTERLEAVE_NPCS}.Name`),
+    hint: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.INTERLEAVE_NPCS}.Hint`),
+    type: Boolean,
+    default: false,
     scope: "world",
     config: true
   });
