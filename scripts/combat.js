@@ -94,7 +94,7 @@ function selectByBonus(maxNPC, c) {
     maxNPC.combatant = c;
   }
   return maxNPC;
-};
+}
 
 /**
  * Select the combatant by highest initiative.
@@ -110,7 +110,7 @@ function selectByInitiative(maxNPC, c) {
     maxNPC.combatant = c;
   }
   return maxNPC;
-};
+}
 
 /**
  * Select the leader NPC.
@@ -200,8 +200,6 @@ export async function rollAllCombat(options={}) {
     // Leader has the highest initiative; keep and rank 0.
     updates.push({ _id: leaderNPC.id, initiative: leaderInit});
     await leaderNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, 0);
-
-
   }
 
 //   const interleaveNPCs = getSetting(SETTINGS.INTERLEAVE_NPCS);
@@ -216,17 +214,27 @@ export async function rollAllCombat(options={}) {
   // Zip sort remaining unrolled NPCs into PC list
   // PCs won: PC[0] = 0, NPC[0] = 1, PC[1] = 2, NPC[1] = 3...
   // PCs lost: NPC[0] = 0, PC[0] = 1, NPC[1] = 2, PC[1] = 3...
-  const numPCs = PC.remaining.length;
-  const numNPCs = NPC.remaining.length;
-  let j = 0;
+  // While PCs remain, zip sort PC --> NPC.
   let rank = Number(!PCsWon); // PCsWon: 0; PCsLost: 1
-  for ( let i = 0; i < numPCs && j < numNPCs; i += 1, j += 1, rank += 2 ) {
-    const currPC = PC.remaining[i];
-    const currNPC = NPC.remaining[j];
+  while ( PC.remaining.length ) {
+    const currPC = PC.remaining.shift();
+    const currNPC = NPC.remaining.shift();
     updates.push({ _id: currNPC.id, initiative: currPC.initiative });
-    await currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank);
-    await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank + 1);
+    await currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
+    await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
   }
+
+//   const numPCs = PC.remaining.length;
+//   const numNPCs = NPC.remaining.length;
+//   let j = 0;
+//   let rank = Number(!PCsWon); // PCsWon: 0; PCsLost: 1
+//   for ( let i = 0; i < numPCs && j < numNPCs; i += 1, j += 1, rank += 2 ) {
+//     const currPC = PC.remaining[i];
+//     const currNPC = NPC.remaining[j];
+//     updates.push({ _id: currNPC.id, initiative: currPC.initiative });
+//     await currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank);
+//     await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank + 1);
+//   }
 
   //   PCswon
   //   rank = 0
@@ -266,13 +274,12 @@ export async function rollAllCombat(options={}) {
 
   // Remainder of NPCs go at the bottom, randomly.
   // To make things interesting, roll their initiatives.
-  const remainingNPCs = NPC.remaining.slice(j);
-  if ( remainingNPCs.length ) {
+  if ( NPC.remaining.length ) {
     // Shift the remainders' init rolls down to be below the minimum PC
-    const maxRemainingInit = Math.max.apply(null, remainingNPCs.map(c => c._zipInit));
-    const targetInit = NPC.remaining[j].initiative - 1;
+    const maxRemainingInit = Math.max.apply(null, NPC.remaining.map(c => c._zipInit));
+    const targetInit = NPC.remaining[0].initiative - 1;
     const shift = maxRemainingInit - targetInit;
-    remainingNPCs.forEach(c => updates.push({ _id: c.id, initiative: c._zipInit - shift }));
+    NPC.remaining.forEach(c => updates.push({ _id: c.id, initiative: c._zipInit - shift }));
   }
 
   // Update NPC initiatives
