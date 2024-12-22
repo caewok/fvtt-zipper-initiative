@@ -1,5 +1,7 @@
 ## 0.2.1
 Fix error re undefined manifest key. Closes #5.
+Add setting to allow for interleaving of multiple NPCs between PCs in the initiative. Closes #6.
+
 
 ## 0.2.0
 FoundryVTT v12 compatibility. Addressed some deprecations, which means this module needs v12 to work.
