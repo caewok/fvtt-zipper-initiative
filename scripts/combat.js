@@ -332,9 +332,12 @@ export async function rollAllCombat(options={}) {
   await this.updateEmbeddedDocuments("Combatant", updates);
 
   // Ensure the turn order remains with the same combatant
-  if ( options.updateTurn && this.combatant?.id ) {
-    await this.update({turn: this.turns.findIndex(t => t.id === this.combatant.id)});
-  }
+//   if ( options.updateTurn && this.combatant?.id ) {
+//     await this.update({turn: this.turns.findIndex(t => t.id === this.combatant.id)});
+//   }
+
+  // Set the combatant to the top of the order.
+  await this.update({ turn: 0 });
 
   return this;
 }
