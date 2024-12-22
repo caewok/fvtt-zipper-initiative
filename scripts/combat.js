@@ -9,6 +9,7 @@ Hooks
 
 import { MODULE_ID, FLAGS, MODULES_ACTIVE } from "./const.js";
 import { getSetting, SETTINGS } from "./settings.js";
+import { handlePopcornPC, handlePopcornNPC, needPopcornPC, needPopcornNPC } from "./popcorn.js";
 
 /* Roll NPCs:
 - Roll the highest NPC if not already
@@ -36,9 +37,36 @@ async function resetInitRank(combatant) {
  */
 Hooks.on("createCombatant", createCombatantHook);
 
-async function createCombatantHook(combatant, _options, id) {
+function createCombatantHook(combatant, _options, id) {
   if ( id !== game.user.id ) return;
-  await resetInitRank(combatant);
+  resetInitRank(combatant);
+}
+
+/**
+ * Hook combatRound.
+ */
+Hooks.on("preUpdateCombat", preUpdateCombat);
+
+function preUpdateCombat(combat, updateData, updateOptions, id) {
+  console.log(`preUpdateCombat round ${updateData.round} turn ${updateData.turn} skipPopcorn: ${updateData.skipPopcorn}`, {combat, updateData, updateOptions, id});
+  if ( updateOptions.direction !== 1 || !updateOptions.turn  ) return true;
+  if ( updateOptions.skipPopcorn ) return true;
+  updateOptions.skipPopcorn = true;
+
+  // PC and NPC are exclusive, b/c based on current combatant status.
+  const needPC = needPopcornPC();
+  const needNPC = !needPC && needPopcornNPC();
+  if ( !(needPC || needNPC) ) return true;
+
+  // The handlePopcorn functions are async.
+  if ( needPC ) handlePopcornPC(updateData, updateOptions);
+  else if ( needNPC ) handlePopcornNPC(updateData, updateOptions);
+
+  // if ( needPC ) handlePopcornPC().then(async _ => await game.combat.update(updateData, updateOptions));
+  // else if ( needNPC ) handlePopcornNPC().then(async _ => await game.combat.update(updateData, updateOptions));
+
+  // Return false and then re-update the combat after handling popcorn initiative.
+  return false;
 }
 
 /**
@@ -46,7 +74,7 @@ async function createCombatantHook(combatant, _options, id) {
  */
 Hooks.on("updateCombat", updateCombatHook);
 
-async function updateCombatHook(combat, _change, _opts, id) {
+function updateCombatHook(combat, _change, _opts, id) {
   if ( id !== game.user.id ) return;
   combat.combatants.forEach(c => {
     if ( c.initiative === null ) resetInitRank(c); // TO-DO: Do we need to await this function?
@@ -58,10 +86,11 @@ async function updateCombatHook(combat, _change, _opts, id) {
  */
 Hooks.on("combatRound", combatRoundHook);
 
-async function combatRoundHook(combat, _updateData, opts) {
+function combatRoundHook(combat, _updateData, opts) {
   if ( !getSetting(SETTINGS.RESET_EACH_ROUND) || opts.direction < 0 ) return;
-  await combat.resetAll();
+  combat.resetAll();
 }
+
 
 /**
  * When interleaving, max number of NPCs in first group?
