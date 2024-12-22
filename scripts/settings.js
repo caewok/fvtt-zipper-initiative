@@ -11,7 +11,11 @@ export const SETTINGS = {
   RESET_EACH_ROUND: "resetEachRound",
   NPC_LEADER_HIGHEST_INIT: "npcLeaderHighestInitiative",
   INTERLEAVE_NPCS: "npcInterleave",
-  USE_DSN: "useDSN" // Dice So Nice rolls
+  USE_DSN: "useDSN", // Dice So Nice rolls
+  POPCORN: {
+    NPC: "popcornNPC",
+    PC: "popcornPC"
+  }
 };
 
 export function getSetting(settingName) {
@@ -63,4 +67,24 @@ export function registerSettings() {
     scope: "world",
     config: true
   });
+
+  game.settings.register(MODULE_ID, SETTINGS.POPCORN.PC, {
+    name: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.POPCORN.PC}.Name`),
+    hint: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.POPCORN.PC}.Hint`),
+    type: Boolean,
+    default: false,
+    scope: "world",
+    config: true
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.POPCORN.NPC, {
+    name: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.POPCORN.NPC}.Name`),
+    hint: game.i18n.localize(`${MODULE_ID}.settings.${SETTINGS.POPCORN.NPC}.Hint`),
+    type: Boolean,
+    default: false,
+    scope: "world",
+    config: true
+  });
+
+
 }

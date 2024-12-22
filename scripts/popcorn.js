@@ -7,7 +7,7 @@ ui
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 "use strict";
 
-import { MODULE_ID } from "./const.js";
+import { MODULE_ID, FLAGS } from "./const.js";
 import { getSetting, SETTINGS } from "./settings.js";
 
 /*
@@ -23,6 +23,10 @@ In both cases the combatant selected swaps places with the next in the init orde
 const sleep = delay => new Promise(resolve => setTimeout(resolve, delay)); // eslint-disable-line no-promise-executor-return
 
 export class TimedDialog extends foundry.applications.api.DialogV2 {
+  static DEFAULT_OPTIONS = {
+    rejectClose: false
+  };
+
   _initializeApplicationOptions(options) {
     options.content += '<i><p class="dialog_timer"></p></i>';
     return super._initializeApplicationOptions(options);
@@ -98,7 +102,7 @@ export async function selectCombatant(combatantIds, defaultCombatantId, { groupN
     radioSelections += selection;
   }
   // style="font-size:14pt;line-height:200%;"
-  radioSelections += '</div>';
+  radioSelections += "</div>";
 
   const options = {};
   options.buttons = [{
@@ -123,6 +127,105 @@ export async function selectCombatant(combatantIds, defaultCombatantId, { groupN
   return result;
 }
 
+/**
+ * Should we ask the PC for a swap?
+ * @returns {bool}
+ */
+export function needPopcornPC() {
+  if ( !getSetting(SETTINGS.POPCORN.PC) ) return false;
+  const currCombatant = game.combat.combatant;
+  if ( currCombatant.isNPC ) return false;
+  if ( remainingPCs().length < 2 ) return false;
+  return true;
+}
+
+/**
+ * Should we ask the GM for a swap?
+ * @returns {bool}
+ */
+export function needPopcornNPC() {
+  if ( !getSetting(SETTINGS.POPCORN.NPC) ) return false;
+  const currCombatant = game.combat.combatant;
+  if ( !currCombatant.isNPC ) return false;
+  if ( remainingPCs().length < 1 ) return false;
+  return true;
+}
+
+/**
+ * For the current combat, return the remaining PC combatants not including current.
+ * @returns {Combatant[]}
+ */
+function remainingPCs() {
+  const currCombatant = game.combat.combatant;
+  const initRank = currCombatant.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK);
+  return [...game.combat.combatants.values()].filter(c => !c.isNPC
+    && c.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK) > initRank);
+}
+
+/* Testing
+tmp = [...game.combat.combatants.values()].map(c => {
+  return { name: c.name, isNPC: c.isNPC, rank: c.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK) }
+})
+tmp.sort((a, b) => a.rank - b.rank)
+console.table(tmp)
+
+tmp = remainingCombatants.map(c => {
+  return { name: c.name, isNPC: c.isNPC, rank: c.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK) }
+})
+tmp.sort((a, b) => a.rank - b.rank)
+console.table(tmp)
+
+*/
+
+/**
+ * For the current combat, return the remaining PC combatants not including current.
+ * @returns {Combatant[]}
+ */
+function remainingNPCs() {
+  const currCombatant = game.combat.combatant;
+  const initRank = currCombatant.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK);
+  return [...game.combat.combatants.values()].filter(c => c.isNPC
+    && c.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK) > initRank);
+}
+
+/**
+ * Handle PC popcorn swap.
+ */
+export async function handlePopcornPC(updateData, updateOptions) {
+  await _handlePopcorn(remainingPCs(), "PC");
+  await game.combat.update(updateData, updateOptions);
+}
+
+/**
+ * Handle NPC popcorn swap.
+ */
+export async function handlePopcornNPC(updateData, updateOptions) {
+  await _handlePopcorn(remainingNPCs(), "NPC");
+  await game.combat.update(updateData, updateOptions);
+}
+
+/**
+ * Utility to handle both PC and NPC popcorn swaps.
+ * @param {Combatants} remainingCombatants
+ * @param {string}
+ */
+async function _handlePopcorn(remainingCombatants, groupName = "PC") {
+  if ( remainingCombatants < 2 ) return;
+  remainingCombatants.sort((a, b) => a.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK) - b.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK));
+  const nextC = remainingCombatants[0];
+  const selectedCombatantId = await selectCombatant(remainingCombatants.map(c => c.id), undefined, { groupName, });
+  if ( selectedCombatantId === nextC.id ) return;
+
+  // Swap the initiatives.
+  const chosenC = game.combat.combatants.get(selectedCombatantId);
+  const chosenRank = chosenC.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK);
+  const nextRank = nextC.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK);
+  const updates = [
+    { _id: nextC.id, initiative: chosenC.initiative, flags: { [MODULE_ID]: { [FLAGS.COMBATANT.RANK]: chosenRank } } },
+    { _id: chosenC.id, initiative: nextC.initiative, flags: { [MODULE_ID]: { [FLAGS.COMBATANT.RANK]: nextRank } } }
+  ];
+  await game.combat.updateEmbeddedDocuments("Combatant", updates);
+}
 
 
 /* Testing
