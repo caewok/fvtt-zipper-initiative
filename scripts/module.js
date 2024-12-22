@@ -1,4 +1,6 @@
 /* globals
+CONFIG,
+game,
 Hooks,
 */
 "use strict";
@@ -16,6 +18,8 @@ import { registerSettings } from "./settings.js";
 // Self-executing scripts for hooks
 import "./changelog.js";
 
+import { TimedDialog, selectCombatant } from "./popcorn.js";
+
 /**
  * Tell DevMode that we want a flag for debugging this module.
  * https://github.com/League-of-Foundry-Developers/foundryvtt-devMode
@@ -28,6 +32,11 @@ Hooks.once("init", () => {
   log("Initializing...");
   registerZipInitiative();
 
+  game.modules.get(MODULE_ID).api = {
+    TimedDialog,
+    selectCombatant
+  };
+
   // Set configuration values used internally
   CONFIG[MODULE_ID] = {
     /**
@@ -36,7 +45,7 @@ Hooks.once("init", () => {
      * @type {number}
      */
     maxSeconds: 15
-  }
+  };
 
 });
 
@@ -122,6 +131,5 @@ Begin Combat:
 - renderCombatTracker
 
 (Note: Begin Combat does not cause tokens to roll initiative if not yet set)
-
 
 */
