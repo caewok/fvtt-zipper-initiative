@@ -49,7 +49,7 @@ Hooks.on("preUpdateCombat", preUpdateCombat);
 
 function preUpdateCombat(combat, updateData, updateOptions, id) {
   console.log(`preUpdateCombat round ${updateData.round} turn ${updateData.turn} skipPopcorn: ${updateData.skipPopcorn}`, {combat, updateData, updateOptions, id});
-  if ( updateOptions.direction !== 1 ) return true;
+  if ( updateOptions.direction !== 1 || !updateOptions.turn  ) return true;
   if ( updateOptions.skipPopcorn ) return true;
   updateOptions.skipPopcorn = true;
 
