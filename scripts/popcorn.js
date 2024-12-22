@@ -41,10 +41,10 @@ export class TimedDialog extends foundry.applications.api.DialogV2 {
       for ( let i = timeoutSeconds; i > 0; i -= 1 ) {
         await sleep(1000);
         try {
-          this.element.getElementsByClassName("dialog_timer")[0].innerHTML = `You have ${i} seconds remaining to decide...`;
+          this.element.getElementsByClassName("dialog_timer")[0].innerHTML = game.i18n.format(`${MODULE_ID}.phrases.countdown`, { number: i });
         } catch(_error) { // eslint-disable-line no-unused-vars
           break;
-          // console.error(error);
+          // Debug: console.error(error);
         }
       }
       this.close();
@@ -102,8 +102,9 @@ export async function selectCombatant(combatantIds, defaultCombatantId, { groupN
 
     radioSelections += selection;
   }
-  // style="font-size:14pt;line-height:200%;"
   radioSelections += "</div>";
+  groupName = game.i18n.localize(groupName === "PC" ? `${MODULE_ID}.phrases.PC` : `${MODULE_ID}.phrases.NPC`);
+  const introPhrase = game.i18n.format(`${MODULE_ID}.phrases.popcorn.selectGroupName`, { groupName });
 
   const options = {};
   options.buttons = [{
@@ -114,7 +115,7 @@ export async function selectCombatant(combatantIds, defaultCombatantId, { groupN
   }];
   options.window = { title: "Choose next combatant", resizable: true };
   options.content = `
-    <p>Select a ${groupName} to be the next ${groupName} in the initiative order:</p>
+    <p>${introPhrase}</p>
     <div>${radioSelections}</div>
   `;
   options.timeoutSeconds = timeoutSeconds;
@@ -212,7 +213,8 @@ export async function handlePopcornNPC(updateData, updateOptions) {
  */
 async function _handlePopcorn(remainingCombatants, groupName = "PC") {
   if ( remainingCombatants < 2 ) return;
-  remainingCombatants.sort((a, b) => a.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK) - b.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK));
+  remainingCombatants.sort((a, b) => a.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK)
+    - b.getFlag(MODULE_ID, FLAGS.COMBATANT.RANK));
   const nextC = remainingCombatants[0];
   const selectedCombatantId = await selectCombatant(remainingCombatants.map(c => c.id), undefined, { groupName, });
   if ( selectedCombatantId === nextC.id ) return;
