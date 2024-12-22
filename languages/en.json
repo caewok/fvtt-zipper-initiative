@@ -6,5 +6,8 @@
   "zipperinitiative.settings.npcLeaderHighestInitiative.Hint": "If enabled, use the NPC that rolls the best initiative as the leader. If disabled, use the NPC with the highest initiative bonus. Note: Regardless of this setting, if the GM rolls any NPCs manually, only those manually rolled will be considered eligible to be the leader.",
 
   "zipperinitiative.settings.useDSN.Name": "Use Dice-So-Nice",
-  "zipperinitiative.settings.useDSN.Hint": "If enabled, initiative will trigger Dice-So-Nice rolls for when rolling NPC or all initiative."
+  "zipperinitiative.settings.useDSN.Hint": "If enabled, initiative will trigger Dice-So-Nice rolls for when rolling NPC or all initiative.",
+
+  "zipperinitiative.settings.npcInterleave.Name": "Interleave NPCs",
+  "zipperinitiative.settings.npcInterleave.Hint": "By default, if there are more NPCs than PCs, the extra NPCs are placed at the end of the initiative. If enabled, extra NPCs will be interleaved between PCs."
 }
