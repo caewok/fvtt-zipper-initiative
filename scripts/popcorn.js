@@ -23,9 +23,10 @@ In both cases the combatant selected swaps places with the next in the init orde
 const sleep = delay => new Promise(resolve => setTimeout(resolve, delay)); // eslint-disable-line no-promise-executor-return
 
 export class TimedDialog extends foundry.applications.api.DialogV2 {
-  static DEFAULT_OPTIONS = {
-    rejectClose: false
-  };
+
+  static async wait({ rejectClose=false, close, render, ...options }={}) {
+    return super.wait({ rejectClose, close, render, ...options });
+  }
 
   _initializeApplicationOptions(options) {
     options.content += '<i><p class="dialog_timer"></p></i>';
