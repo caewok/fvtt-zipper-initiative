@@ -13,7 +13,7 @@ import { log } from "./util.js";
 import { registerZipInitiative, PATCHER } from "./patching.js";
 
 // Settings
-import { registerSettings } from "./settings.js";
+import { Settings } from "./settings.js";
 
 // Self-executing scripts for hooks
 import "./changelog.js";
@@ -51,7 +51,7 @@ Hooks.once("init", () => {
 });
 
 Hooks.once("setup", () => {
-  registerSettings();
+  Settings.registerAll();
 });
 
 /* Combat Tracker Hooks
