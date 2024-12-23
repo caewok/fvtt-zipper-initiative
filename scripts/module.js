@@ -1,4 +1,6 @@
 /* globals
+CONFIG,
+game,
 Hooks,
 */
 "use strict";
@@ -8,13 +10,15 @@ import { MODULE_ID } from "./const.js";
 import { log } from "./util.js";
 
 // Patching
-import { registerZipInitiative } from "./patching.js";
+import { registerZipInitiative, PATCHER } from "./patching.js";
 
 // Settings
-import { registerSettings } from "./settings.js";
+import { Settings } from "./settings.js";
 
 // Self-executing scripts for hooks
 import "./changelog.js";
+
+import { TimedDialog, selectCombatant } from "./popcorn.js";
 
 /**
  * Tell DevMode that we want a flag for debugging this module.
@@ -28,6 +32,12 @@ Hooks.once("init", () => {
   log("Initializing...");
   registerZipInitiative();
 
+  game.modules.get(MODULE_ID).api = {
+    TimedDialog,
+    selectCombatant,
+    PATCHER
+  };
+
   // Set configuration values used internally
   CONFIG[MODULE_ID] = {
     /**
@@ -36,12 +46,12 @@ Hooks.once("init", () => {
      * @type {number}
      */
     maxSeconds: 15
-  }
+  };
 
 });
 
 Hooks.once("setup", () => {
-  registerSettings();
+  Settings.registerAll();
 });
 
 /* Combat Tracker Hooks
@@ -122,6 +132,5 @@ Begin Combat:
 - renderCombatTracker
 
 (Note: Begin Combat does not cause tokens to roll initiative if not yet set)
-
 
 */

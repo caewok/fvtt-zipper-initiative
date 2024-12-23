@@ -1,4 +1,6 @@
 /* globals
+game,
+Hooks
 */
 "use strict";
 
