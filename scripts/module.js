@@ -45,7 +45,13 @@ Hooks.once("init", () => {
      * players not yet rolling. If this value is 0 or less, it will never time out.
      * @type {number}
      */
-    maxSeconds: 15
+    maxSeconds: 15,
+
+    /**
+     * Maximum number of seconds to wait before timing out the popcorn dialog.
+     * @type {number}
+     */
+    popcornTimeout: 30
   };
 
 });
