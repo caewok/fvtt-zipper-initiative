@@ -1,14 +1,13 @@
 /* globals
 CONFIG,
 game,
-ui,
-Hooks
+ui
 */
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 "use strict";
 
 import { MODULE_ID, FLAGS, MODULES_ACTIVE } from "./const.js";
-import { getSetting, SETTINGS } from "./settings.js";
+import { Settings } from "./settings.js";
 import { handlePopcornPC, handlePopcornNPC, needPopcornPC, needPopcornNPC } from "./popcorn.js";
 
 // Patches for the Combat class.
@@ -64,6 +63,7 @@ function preUpdateCombat(combat, updateData, updateOptions, id) {
   if ( needPC ) handlePopcornPC(updateData, updateOptions);
   else if ( needNPC ) handlePopcornNPC(updateData, updateOptions);
 
+  // This doesn't work but unclear why. Skips the update.
   // if ( needPC ) handlePopcornPC().then(async _ => await game.combat.update(updateData, updateOptions));
   // else if ( needNPC ) handlePopcornNPC().then(async _ => await game.combat.update(updateData, updateOptions));
 
@@ -85,7 +85,7 @@ function updateCombat(combat, _change, _opts, id) {
  * Hook combatRound.
  */
 function combatRound(combat, _updateData, opts) {
-  if ( !getSetting(SETTINGS.RESET_EACH_ROUND) || opts.direction < 0 ) return;
+  if ( !Settings.get(Settings.KEYS.RESET_EACH_ROUND) || opts.direction < 0 ) return;
   combat.resetAll();
 }
 
@@ -157,7 +157,7 @@ function selectByInitiative(maxNPC, c) {
  * @returns {Combatant}
  */
 function selectNPCLeader(candidates) {
-  const leaderSelectionFn = getSetting(SETTINGS.NPC_LEADER_HIGHEST_INIT) ? selectByInitiative : selectByBonus;
+  const leaderSelectionFn = Settings.get(Settings.KEYS.NPC_LEADER_HIGHEST_INIT) ? selectByInitiative : selectByBonus;
   const leaderNPC = candidates.reduce(leaderSelectionFn, { initBonus: Number.NEGATIVE_INFINITY, combatant: null });
 
   // Fall back on random selection
@@ -206,7 +206,7 @@ async function rollAll(options={}) {
     // Force DSN to show the roll despite not going to chat.
     // https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/wikis/API/Roll
     if ( MODULES_ACTIVE.DSN
-      && game.settings.get(MODULE_ID, SETTINGS.USE_DSN) ) game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await.
+      && Settings.get(Settings.KEYS.USE_DSN) ) game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await.
     npc._zipInit = roll.total;
   }
   NPC.unrolled.sort((a, b) => b._zipInit - a._zipInit);
@@ -229,7 +229,7 @@ async function rollAll(options={}) {
   // We don't need the rolled and unrolled arrays anymore, so just copy over them.
   PC.remaining = PC.rolled;
   NPC.remaining = NPC.unrolled;
-  const interleaveNPCs = getSetting(SETTINGS.INTERLEAVE_NPCS);
+  const interleaveNPCs = Settings.get(Settings.KEYS.INTERLEAVE_NPCS);
   let rank = Number(!PCsWon); // PCsWon: 0; PCsLost: 1
 
   if ( PCsWon ) {
@@ -251,20 +251,10 @@ async function rollAll(options={}) {
     }
   }
 
-//
-//   const numNPCsPerGroup = interleaveNPCs ? : 1;
-//   if ( interleaveNPCs ) {
-//
-//   }
-//
-//   2 PCs:
-
-
   // Zip sort remaining unrolled NPCs into PC list
   // PCs won: PC[0] = 0, NPC[0] = 1, PC[1] = 2, NPC[1] = 3...
   // PCs lost: NPC[0] = 0, PC[0] = 1, NPC[1] = 2, PC[1] = 3...
   // While PCs remain, zip sort PC --> NPC.
-
   while ( PC.remaining.length ) {
     // Treat as PCs won b/c we are adding the PC first
     const numNPCs = interleaveNPCs ? numberNPCsInFirstGroup(PC.remaining.length, NPC.remaining.length, true) : 1;
@@ -276,54 +266,6 @@ async function rollAll(options={}) {
       await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
     }
   }
-
-//   const numPCs = PC.remaining.length;
-//   const numNPCs = NPC.remaining.length;
-//   let j = 0;
-//   let rank = Number(!PCsWon); // PCsWon: 0; PCsLost: 1
-//   for ( let i = 0; i < numPCs && j < numNPCs; i += 1, j += 1, rank += 2 ) {
-//     const currPC = PC.remaining[i];
-//     const currNPC = NPC.remaining[j];
-//     updates.push({ _id: currNPC.id, initiative: currPC.initiative });
-//     await currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank);
-//     await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank + 1);
-//   }
-
-  //   PCswon
-  //   rank = 0
-  //   currPC = PC[0]
-  //   currNPC = NPC[0]
-  //   currNPC.init = currPC.init
-  //   currPC.rank = 0 (rank)
-  //   currNPC.rank = 1 (rank + 1)
-  //
-  //   ...
-  //   rank = 2
-  //   currPC = PC[1]
-  //   currNPC = NPC[1]
-  //   currNPC.init = currPC.init
-  //   currPC.rank = 2 (rank)
-  //   currNPC.rank = 3 (rank + 1)
-  //
-  //   PCslost
-  //   currNPC[0] is leader, rank 0
-  //
-  //   rank = 1
-  //   currPC = PC[0]
-  //   currNPC = NPC[0]
-  //   currNPC.init = currPC.init
-  //   currPC.rank = 1 (rank)
-  //   currNPC.rank = 2 (rank + 1)
-  //
-  //   ...
-  //
-  //   rank = 3 (+2)
-  //   currPC = PC[1]
-  //   currNPC = NPC[1]
-  //   currNPC.init = currPC.init
-  //   currPC.rank = 3 (rank)
-  //   currNPC.rank = 4 (rank + 1)
-
 
   // Remainder of NPCs go at the bottom, randomly.
   // To make things interesting, roll their initiatives.
@@ -338,10 +280,11 @@ async function rollAll(options={}) {
   // Update NPC initiatives
   await this.updateEmbeddedDocuments("Combatant", updates);
 
+  // Unclear if this is necessary...
   // Ensure the turn order remains with the same combatant
-//   if ( options.updateTurn && this.combatant?.id ) {
-//     await this.update({turn: this.turns.findIndex(t => t.id === this.combatant.id)});
-//   }
+  //   if ( options.updateTurn && this.combatant?.id ) {
+  //     await this.update({turn: this.turns.findIndex(t => t.id === this.combatant.id)});
+  //   }
 
   // Set the combatant to the top of the order.
   await this.update({ turn: 0 });
@@ -358,7 +301,6 @@ export async function rollNPC(options={}) {
   const MS_DELAY = 1000;
   const MAX_ITER = CONFIG[MODULE_ID].maxSeconds;
   const combatants = [...this.combatants];
-
   const allPCsRolled = () => combatants.every(c => !c.isOwner || c.isNPC || c.initiative !== null);
   const delay = () => new Promise(resolve => setTimeout(resolve, MS_DELAY)); // eslint-disable-line no-promise-executor-return
 

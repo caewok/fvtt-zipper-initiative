@@ -8,7 +8,7 @@ ui
 "use strict";
 
 import { MODULE_ID, FLAGS } from "./const.js";
-import { getSetting, SETTINGS } from "./settings.js";
+import { Settings } from "./settings.js";
 
 /*
 Functions to handle popcorn initiative.
@@ -134,7 +134,7 @@ export async function selectCombatant(combatantIds, defaultCombatantId, { groupN
  * @returns {bool}
  */
 export function needPopcornPC() {
-  if ( !getSetting(SETTINGS.POPCORN.PC) ) return false;
+  if ( !Settings.get(Settings.KEYS.POPCORN.PC) ) return false;
   const currCombatant = game.combat.combatant;
   if ( currCombatant.isNPC ) return false;
   if ( remainingPCs().length < 2 ) return false;
@@ -146,7 +146,7 @@ export function needPopcornPC() {
  * @returns {bool}
  */
 export function needPopcornNPC() {
-  if ( !getSetting(SETTINGS.POPCORN.NPC) ) return false;
+  if ( !Settings.get(Settings.KEYS.POPCORN.NPC) ) return false;
   const currCombatant = game.combat.combatant;
   if ( !currCombatant.isNPC ) return false;
   if ( remainingPCs().length < 1 ) return false;
