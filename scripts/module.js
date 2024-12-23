@@ -10,7 +10,7 @@ import { MODULE_ID } from "./const.js";
 import { log } from "./util.js";
 
 // Patching
-import { registerZipInitiative } from "./patching.js";
+import { registerZipInitiative, PATCHER } from "./patching.js";
 
 // Settings
 import { registerSettings } from "./settings.js";
@@ -34,7 +34,8 @@ Hooks.once("init", () => {
 
   game.modules.get(MODULE_ID).api = {
     TimedDialog,
-    selectCombatant
+    selectCombatant,
+    PATCHER
   };
 
   // Set configuration values used internally
