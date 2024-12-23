@@ -3,7 +3,7 @@ Fix error re undefined manifest key. Closes #5.
 Add setting to allow for interleaving of multiple NPCs between PCs in the initiative. Closes #6.
 Add options to use "zipper popcorn" for PCs or NPCs. As suggested by @EpsilonRose, when a PC ends their
 turn and 2+ PCs remain in the initiative order, a dialog allows the PC to select from remaining PCs to go next.
-(Not immediately next, but the next PC slot in the zipper order.) Similarly, the DM can do the same for NPCs.
+(Not immediately next, but the next PC slot in the zipper order.) Similarly, the DM can do the same for NPCs. Closes #4.
 
 ## 0.2.0
 FoundryVTT v12 compatibility. Addressed some deprecations, which means this module needs v12 to work.
