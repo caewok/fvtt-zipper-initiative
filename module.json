@@ -2,11 +2,11 @@
   "name": "zipperinitiative",
   "id": "zipperinitiative",
   "title": "Zipper Initiative",
-  "version": "This is auto replaced",
+  "version": "#{VERSION}#",
   "library": false,
   "compatibility": {
     "minimum": "12",
-    "verified": "12.324"
+    "verified": "12.331"
   },
   "authors": [
     {
@@ -36,9 +36,9 @@
       "description": "Implements zip initiative"
     }
   ],
-  "url": "This is auto replaced",
-  "manifest": "This is auto replaced",
-  "download": "This is auto replaced",
+  "url": "#{URL}#",
+  "manifest": "#{MANIFEST}#",
+  "download": "#{DOWNLOAD}#",
   "license": "LICENSE",
   "readme": "README.md"
 }
