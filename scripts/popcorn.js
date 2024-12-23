@@ -77,7 +77,7 @@ export class TimedDialog extends foundry.applications.api.DialogV2 {
  * @param {number} [timeout=30]         Number of seconds the dialog should remain.
  * @returns {string} The selected combatant id
  */
-export async function selectCombatant(combatantIds, defaultCombatantId, { groupName = "PC", timeoutSeconds = 30 } = {}) {
+export async function selectCombatant(combatantIds, defaultCombatantId, { groupName = "PC", timeoutSeconds = CONFIG[MODULE_ID].popcornTimeout } = {}) {
   combatantIds ??= [...game.combat.combatants.keys()];
   if ( combatantIds.length === 0 ) return null;
   defaultCombatantId ??= combatantIds[0];
