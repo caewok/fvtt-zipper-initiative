@@ -41,11 +41,9 @@ Hooks.once("ready", () => {
           PCs and NPCs are sorted alternating in the initiative order, with a single NPC "leader"
           used to determine which side goes first.
 
-
           **Manual Rolls**: Rolling a single NPC manually will cause that combatant to be the NPC leader. Rolling
           multiple NPCs manually will cause one to be selected leader and the others to keep their
           initiative score, ignoring zip sort for those combatants only.
-
 
           **Reset Initative setting**: A setting is provided to optionally force initiative to be reset each round.
           `
@@ -90,8 +88,7 @@ Hooks.once("ready", () => {
 
           Per @GhostwheelX's request, I added a setting to interleave the NPCs when there are more NPCs than PCs.
           Spacing will be approximately equal. For example, with 2 PCs and 5 NPCs, you could get
-          P N N P N N instead of
-          P N P N N N.
+          P N N P N N instead of P N P N N N.
           `
     })
 
