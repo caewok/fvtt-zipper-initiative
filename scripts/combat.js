@@ -11,6 +11,11 @@ import { MODULE_ID, FLAGS, MODULES_ACTIVE } from "./const.js";
 import { getSetting, SETTINGS } from "./settings.js";
 import { handlePopcornPC, handlePopcornNPC, needPopcornPC, needPopcornNPC } from "./popcorn.js";
 
+// Patches for the Combat class.
+export const PATCHES = {};
+PATCHES.BASIC = {};
+PATCHES.POPCORN = {};
+
 /* Roll NPCs:
 - Roll the highest NPC if not already
 - Intersperse the other NPCs between players by assigning initiative accordingly
@@ -35,18 +40,14 @@ async function resetInitRank(combatant) {
 /**
  * Hook createCombatant.
  */
-Hooks.on("createCombatant", createCombatantHook);
-
-function createCombatantHook(combatant, _options, id) {
+function createCombatant(combatant, _options, id) {
   if ( id !== game.user.id ) return;
   resetInitRank(combatant);
 }
 
 /**
- * Hook combatRound.
+ * Hook preUpdateCombat.
  */
-Hooks.on("preUpdateCombat", preUpdateCombat);
-
 function preUpdateCombat(combat, updateData, updateOptions, id) {
   console.log(`preUpdateCombat round ${updateData.round} turn ${updateData.turn} skipPopcorn: ${updateData.skipPopcorn}`, {combat, updateData, updateOptions, id});
   if ( updateOptions.direction !== 1 ) return true;
@@ -73,9 +74,7 @@ function preUpdateCombat(combat, updateData, updateOptions, id) {
 /**
  * Hook updateCombat.
  */
-Hooks.on("updateCombat", updateCombatHook);
-
-function updateCombatHook(combat, _change, _opts, id) {
+function updateCombat(combat, _change, _opts, id) {
   if ( id !== game.user.id ) return;
   combat.combatants.forEach(c => {
     if ( c.initiative === null ) resetInitRank(c); // TO-DO: Do we need to await this function?
@@ -85,13 +84,20 @@ function updateCombatHook(combat, _change, _opts, id) {
 /**
  * Hook combatRound.
  */
-Hooks.on("combatRound", combatRoundHook);
-
-function combatRoundHook(combat, _updateData, opts) {
+function combatRound(combat, _updateData, opts) {
   if ( !getSetting(SETTINGS.RESET_EACH_ROUND) || opts.direction < 0 ) return;
   combat.resetAll();
 }
 
+PATCHES.BASIC.HOOKS = {
+  createCombatant,
+  updateCombat,
+  combatRound
+};
+
+PATCHES.POPCORN.HOOKS = {
+  preUpdateCombat
+};
 
 /**
  * When interleaving, max number of NPCs in first group?
@@ -163,7 +169,7 @@ function selectNPCLeader(candidates) {
  * Wrap async Combat.prototype.rollAll
  * @param {object} [options]  Passed to rollInitiative. formula, updateTurn, messageOptions
  */
-export async function rollAllCombat(options={}) {
+async function rollAll(options={}) {
   const combatants = this.combatants.filter(c => c.isOwner);
   if ( !combatants.length ) return;
 
@@ -347,7 +353,7 @@ export async function rollAllCombat(options={}) {
  * Wrap async Combat.prototype.rollNPC
  * @param {object} [options]  Passed to rollInitiative. formula, updateTurn, messageOptions
  */
-export async function rollNPCCombat(options={}) {
+export async function rollNPC(options={}) {
   // Wait until all PCs have rolled.
   const MS_DELAY = 1000;
   const MAX_ITER = CONFIG[MODULE_ID].maxSeconds;
@@ -382,7 +388,7 @@ export async function rollNPCCombat(options={}) {
  * @param {Combatant} b     Some other combatant
  * @returns {number} The sort order.
  */
-export function _sortCombatantsCombat(a, b) {
+export function _sortCombatants(a, b) {
   const aHasInit = Number.isNumeric(a.initiative);
   const bHasInit = Number.isNumeric(b.initiative);
 
@@ -397,6 +403,12 @@ export function _sortCombatantsCombat(a, b) {
   const ib = bHasInit ? b.initiative : initBonus(b.token);
   return (ib - ia) || (aRank - bRank) || a.token.name.localeCompare(b.token.name);
 }
+
+PATCHES.BASIC.OVERRIDES = {
+  rollAll,
+  rollNPC,
+  _sortCombatants
+};
 
 
 /**

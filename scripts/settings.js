@@ -5,6 +5,7 @@ game
 "use strict";
 
 import { MODULE_ID } from "./const.js";
+import { registerPopcorn, deregisterPopcorn } from "./patching.js";
 
 export const SETTINGS = {
   CHANGELOG: "changelog",
@@ -74,7 +75,11 @@ export function registerSettings() {
     type: Boolean,
     default: false,
     scope: "world",
-    config: true
+    config: true,
+    onChange: value => {
+      if ( value ) registerPopcorn();
+      else if ( !getSetting(SETTINGS.POPCORN.NPC) ) deregisterPopcorn();
+    }
   });
 
   game.settings.register(MODULE_ID, SETTINGS.POPCORN.NPC, {
@@ -83,8 +88,14 @@ export function registerSettings() {
     type: Boolean,
     default: false,
     scope: "world",
-    config: true
+    config: true,
+    onChange: value => {
+      if ( value ) registerPopcorn();
+      else if ( !getSetting(SETTINGS.POPCORN.PC) ) deregisterPopcorn();
+    }
   });
 
+
+  if ( getSetting(SETTINGS.POPCORN.PC) || getSetting(SETTINGS.POPCORN.NPC) ) registerPopcorn();
 
 }
