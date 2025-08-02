@@ -5,7 +5,7 @@
 import { Patcher } from "./Patcher.js";
 import { PATCHES as PATCHES_Combat } from "./combat.js";
 
-const PATCHES = { Combat: PATCHES_Combat };
+const PATCHES = { "CONFIG.Combat.documentClass": PATCHES_Combat };
 export const PATCHER = new Patcher();
 
 export function registerZipInitiative() {
