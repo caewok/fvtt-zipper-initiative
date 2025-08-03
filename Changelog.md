@@ -1,3 +1,6 @@
+## 0.3.0
+Foundry v13 support. Use 0.2 series for v12.
+
 ## 0.2.2
 Fix for settings not caching properly and becoming "sticky" until reload.
 Fix for zippering in PF2e.
