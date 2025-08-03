@@ -1,3 +1,9 @@
+## 0.2.2
+Fix for settings not caching properly and becoming "sticky" until reload.
+Fix for zippering in PF2e.
+Added `CONFIG.zipperinitiative.initiativeBonus` function which can be modified to change
+how the initiative bonus is calculated, if that option is used. Takes a token and returns a bonus number.
+
 ## 0.2.1
 Fix error re undefined manifest key. Closes #5.
 Add setting to allow for interleaving of multiple NPCs between PCs in the initiative. Closes #6.
