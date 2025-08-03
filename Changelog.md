@@ -1,3 +1,6 @@
+## 0.3.1
+Workaround for Dice-so-nice throwing an error when rolling for NPCs in dnd5e. Closes issue #8.
+
 ## 0.3.0
 Foundry v13 support. Use 0.2 series for v12.
 
