@@ -15,6 +15,9 @@ import { registerZipInitiative, PATCHER } from "./patching.js";
 // Settings
 import { Settings } from "./settings.js";
 
+// System-specific
+import { INITIATIVE_BONUS_FUNCTIONS } from "./initiative_bonus.js";
+
 // Self-executing scripts for hooks
 import "./changelog.js";
 
@@ -35,7 +38,8 @@ Hooks.once("init", () => {
   game.modules.get(MODULE_ID).api = {
     TimedDialog,
     selectCombatant,
-    PATCHER
+    PATCHER,
+    Settings,
   };
 
   // Set configuration values used internally
@@ -51,9 +55,15 @@ Hooks.once("init", () => {
      * Maximum number of seconds to wait before timing out the popcorn dialog.
      * @type {number}
      */
-    popcornTimeout: 30
-  };
+    popcornTimeout: 30,
 
+    /**
+     * Function to get the initiative bonus of a token.
+     * @param {Token} token     Token to test
+     * @returns {number} Bonus amount
+     */
+    initiativeBonus: INITIATIVE_BONUS_FUNCTIONS[game.system.id] ?? (token => Number.NEGATIVE_INFINITY),
+  };
 });
 
 Hooks.once("setup", () => {
