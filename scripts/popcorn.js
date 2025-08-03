@@ -1,6 +1,5 @@
 /* globals
 CONFIG,
-FormDataExtended,
 foundry,
 game,
 ui,
@@ -57,7 +56,7 @@ export class TimedDialog extends foundry.applications.api.DialogV2 {
     const handler = this.options.form.handler;
     if ( handler instanceof Function ) {
       const form = this.element.getElementsByTagName("form")[0];
-      const formData = new FormDataExtended(form);
+      const formData = new foundry.applications.ux.FormDataExtended(form);
       try {
         await handler.call(this, form, formData);
       } catch(err) {
