@@ -38,7 +38,8 @@ Hooks.once("init", () => {
   game.modules.get(MODULE_ID).api = {
     TimedDialog,
     selectCombatant,
-    PATCHER
+    PATCHER,
+    Settings,
   };
 
   // Set configuration values used internally

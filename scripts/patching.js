@@ -4,8 +4,12 @@
 
 import { Patcher } from "./Patcher.js";
 import { PATCHES as PATCHES_Combat } from "./combat.js";
+import { PATCHES as PATCHES_Settings } from "./ModuleSettingsAbstract.js";
 
-const PATCHES = { "CONFIG.Combat.documentClass": PATCHES_Combat };
+const PATCHES = {
+  "CONFIG.Combat.documentClass": PATCHES_Combat,
+  ClientSettings: PATCHES_Settings,
+};
 export const PATCHER = new Patcher();
 
 export function registerZipInitiative() {
