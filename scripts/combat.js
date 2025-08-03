@@ -206,7 +206,16 @@ async function rollAll(options={}) {
     // Force DSN to show the roll despite not going to chat.
     // https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/wikis/API/Roll
     if ( MODULES_ACTIVE.DSN
-      && Settings.get(Settings.KEYS.USE_DSN) ) game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await.
+      && Settings.get(Settings.KEYS.USE_DSN) ) {
+        // Issue #8
+        for ( const term of roll.terms ) {
+          if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "20";
+        }
+        await game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await but for this issue.
+        for ( const term of roll.terms ) {
+          if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "d";
+        }
+    }
     npc._zipInit = roll.total;
   }
   NPC.unrolled.sort((a, b) => b._zipInit - a._zipInit);
