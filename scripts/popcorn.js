@@ -1,8 +1,9 @@
 /* globals
+CONFIG,
 FormDataExtended,
 foundry,
 game,
-ui
+ui,
 */
 /* eslint no-unused-vars: ["error", { "argsIgnorePattern": "^_" }] */
 "use strict";
