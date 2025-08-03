@@ -68,7 +68,14 @@ If the GM hits the roll NPC button, the highest NPC rolls for initiative if no N
 If the GM hits the Roll All button, all PCs are rolled automatically, followed by determination of the highest NPC and zipper sorting.
 
 ## Settings
-A setting is available to force initiative to reset every round.
+- Reset Initiative Each Round. 
+- Best NPC Roll is Leader. How to determine the "lead" NPC. By highest initiative bonus or by best rolled initiative.
+- Use Dice-so-Nice
+- Interleave NPCs. Original zipper initiative was organized 1 PC | 1 NPC | 1 PC..., with the remaining NPCs added to the end. Interleaving places multiple NPCs between the PCs, so there are close to the same number of NPCs in each group. For example, original might be 1 PC | 1 NPC | 1 PC | 4 NPCs. Interleaving would be 1 PC | 2 NPCs | 1 PC | 3 NPCs.
+- Zipper Popcorn PCs. On the end of a PC's turn, pops up a dialog if there are 2+ PCs left in the initiative queue for the round. The PC can choose which PC goes "next"—meaning next after 1+ NPCs go. Effectively, the PC can choose another PC to switch places in the initiative order with the PC that is supposed to go next. 
+- Zipper Popcorn NPCs. Similar to the setting for PCs, but instead asks the GM to reorder the next NPC. Will not display a dialog if no PCs are left.
 
 ## Configs
-A config is available to adjust the timeout delay when the Roll NPCs button is used.
+Use these in a macro, world script, or just set them in your browser console.
+- `CONFIG.zipperinitiative.maxSeconds`: Adjust the timeout delay when the Roll NPCs button is used.
+- `CONFIG.zipperinitiative.popcornTimeout`: Adjust the timeout delay for the popcorn dialog.
