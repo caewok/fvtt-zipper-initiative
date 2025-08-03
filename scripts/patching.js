@@ -8,7 +8,7 @@ import { PATCHES as PATCHES_Settings } from "./ModuleSettingsAbstract.js";
 
 const PATCHES = {
   "CONFIG.Combat.documentClass": PATCHES_Combat,
-  ClientSettings: PATCHES_Settings,
+  "foundry.helpers.ClientSettings": PATCHES_Settings,
 };
 export const PATCHER = new Patcher();
 
