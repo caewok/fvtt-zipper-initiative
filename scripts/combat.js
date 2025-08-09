@@ -48,7 +48,7 @@ function createCombatant(combatant, _options, id) {
  * Hook preUpdateCombat.
  */
 function preUpdateCombat(combat, updateData, updateOptions, id) {
-  console.log(`preUpdateCombat round ${updateData.round} turn ${updateData.turn} skipPopcorn: ${updateData.skipPopcorn}`, {combat, updateData, updateOptions, id});
+  // console.log(`preUpdateCombat round ${updateData.round} turn ${updateData.turn} skipPopcorn: ${updateData.skipPopcorn}`, {combat, updateData, updateOptions, id});
   if ( updateOptions.direction !== 1 ) return true;
   if ( !updateData.turn ) return true;
   if ( updateOptions.skipPopcorn ) return true;
@@ -207,14 +207,14 @@ async function rollAll(options={}) {
     // https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/wikis/API/Roll
     if ( MODULES_ACTIVE.DSN
       && Settings.get(Settings.KEYS.USE_DSN) ) {
-        // Issue #8
-        for ( const term of roll.terms ) {
-          if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "20";
-        }
-        await game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await but for this issue.
-        for ( const term of roll.terms ) {
-          if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "d";
-        }
+      // Issue #8
+      for ( const term of roll.terms ) {
+        if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "20";
+      }
+      await game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await but for this issue.
+      for ( const term of roll.terms ) {
+        if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "d";
+      }
     }
     npc._zipInit = roll.total;
   }
