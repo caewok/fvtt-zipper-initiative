@@ -27,14 +27,6 @@ PATCHES.POPCORN = {};
 - See Roll NPCs for rest
 */
 
-/* Flags
-To facilitate sorting without resorting to decimals to break initiative ties, use a flag
-to rank combatants.
-*/
-
-async function resetInitRank(combatant) {
-  return combatant.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, Number.NEGATIVE_INFINITY);
-}
 
 /**
  * Hook createCombatant.
@@ -47,7 +39,7 @@ function createCombatant(combatant, _options, id) {
 /**
  * Hook preUpdateCombat.
  */
-function preUpdateCombat(combat, updateData, updateOptions, id) {
+function preUpdateCombat(combat, updateData, updateOptions, _id) {
   // console.log(`preUpdateCombat round ${updateData.round} turn ${updateData.turn} skipPopcorn: ${updateData.skipPopcorn}`, {combat, updateData, updateOptions, id});
   if ( updateOptions.direction !== 1 ) return true;
   if ( !updateData.turn ) return true;
@@ -100,72 +92,6 @@ PATCHES.POPCORN.HOOKS = {
 };
 
 /**
- * When interleaving, max number of NPCs in first group?
- * @param {number} numPCs
- * @param {number} numNPCs
- * @param {bool} PCsWon
- * @returns {number}
- */
-function numberNPCsInFirstGroup(numPCs, numNPCs, PCsWon) {
-  if ( numNPCs < 1 ) return 0;
-  if ( numPCs >= numNPCs ) return 1; // E.g. pnpn or npnp
-  if ( !PCsWon && numPCs >= (numNPCs - 1) ) return 1; // E.g. npnpn
-
-  // Always tries to put NPCs in a final group.
-  const numGroups = PCsWon ? numPCs : (numPCs + 1);
-  return Math.floor(numNPCs / numGroups);
-}
-
-/**
- * Select the combatant by highest bonus.
- * @param {object} maxNPC
- *   - @prop {number} initBonus
- *   - @prop {Combatant|null} combatant
- * @param {Combatant} c
- * @returns {object} Same structure as maxNPC
- */
-function selectByBonus(maxNPC, c) {
-  const bonus = CONFIG[MODULE_ID].initiativeBonus(c.token);
-  if ( bonus > maxNPC.initBonus ) {
-    maxNPC.initBonus = bonus;
-    maxNPC.combatant = c;
-  }
-  return maxNPC;
-}
-
-/**
- * Select the combatant by highest initiative.
- * @param {object} maxNPC
- *   - @prop {number} initBonus
- *   - @prop {Combatant|null} combatant
- * @param {Combatant} c
- * @returns {object} Same structure as maxNPC
- */
-function selectByInitiative(maxNPC, c) {
-  if ( c.initiative > maxNPC.initBonus ) {
-    maxNPC.initBonus = c.initiative;
-    maxNPC.combatant = c;
-  }
-  return maxNPC;
-}
-
-/**
- * Select the leader NPC.
- * Select the candidate with the highest bonus; random otherwise.
- * If NPC_LEADER_HIGHEST is enabled, use highest initiative instead.
- * @param {Combatant[]} candidates
- * @returns {Combatant}
- */
-function selectNPCLeader(candidates) {
-  const leaderSelectionFn = Settings.get(Settings.KEYS.NPC_LEADER_HIGHEST_INIT) ? selectByInitiative : selectByBonus;
-  const leaderNPC = candidates.reduce(leaderSelectionFn, { initBonus: Number.NEGATIVE_INFINITY, combatant: null });
-
-  // Fall back on random selection
-  if ( !leaderNPC.combatant ) leaderNPC.combatant = candidates[Math.floor(Math.random() * candidates.length)];
-  return leaderNPC.combatant;
-}
-
-/**
  * Wrap async Combat.prototype.rollAll
  * @param {object} [options]  Passed to rollInitiative. formula, updateTurn, messageOptions
  */
@@ -198,27 +124,20 @@ async function rollAll(options={}) {
   PC.rolled = combatants.filter(c => !c.isNPC && c.initiative !== null);
   NPC.rolled = combatants.filter(c => c.isNPC && c.initiative !== null);
 
-  // Roll NPC initiative and sort by that initiative
-  for ( const npc of NPC.unrolled ) {
-    const roll = npc.getInitiativeRoll();
-    await roll.evaluate();
-
-    // Force DSN to show the roll despite not going to chat.
-    // https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/wikis/API/Roll
-    if ( MODULES_ACTIVE.DSN
-      && Settings.get(Settings.KEYS.USE_DSN) ) {
-      // Issue #8
-      for ( const term of roll.terms ) {
-        if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "20";
-      }
-      await game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await but for this issue.
-      for ( const term of roll.terms ) {
-        if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "d";
-      }
+  // Roll NPC initiative; temporarily assign it to each NPC, and sort by that initiative
+  const promises = [];
+  NPC.unrolled.forEach(npc => promises.push(rollSingleNPC(npc)));
+  const npcTotals = await Promise.allSettled(promises);
+  for ( let i = 0, iMax = NPC.unrolled.length; i < iMax; i += 1 ) {
+    const res = npcTotals[i];
+    const npc = NPC.unrolled[i];
+    if ( res.status === "fulfilled" ) npc.initiative = res.value;
+    else {
+      console.error(res.reason);
+      npc.initiative = Number.NEGATIVE_INFINITY;
     }
-    npc._zipInit = roll.total;
   }
-  NPC.unrolled.sort((a, b) => b._zipInit - a._zipInit);
+  NPC.unrolled.sort((a, b) => b.initiative - a.initiative);
 
   // Sort PCs by initiative
   PC.rolled.sort((a, b) => b.initiative - a.initiative);
@@ -232,7 +151,7 @@ async function rollAll(options={}) {
 
   // Determine if the PCs or the NPC leader rolled the best initiative
   const bestPCInit = PC.rolled[0]?.initiative ?? Number.NEGATIVE_INFINITY;
-  const leaderInit = leaderNPC.initiative ?? leaderNPC._zipInit;
+  const leaderInit = leaderNPC.initiative ?? Number.NEGATIVE_INFINITY;
   const PCsWon = bestPCInit >= leaderInit;
 
   // We don't need the rolled and unrolled arrays anymore, so just copy over them.
@@ -240,6 +159,7 @@ async function rollAll(options={}) {
   NPC.remaining = NPC.unrolled;
   const interleaveNPCs = Settings.get(Settings.KEYS.INTERLEAVE_NPCS);
   let rank = Number(!PCsWon); // PCsWon: 0; PCsLost: 1
+  const rankingUpdatePromises = [];
 
   if ( PCsWon ) {
     // Leader requires a new initiative to place in zip order.
@@ -247,7 +167,7 @@ async function rollAll(options={}) {
   } else {
     // Leader has the highest initiative; keep and rank 0.
     updates.push({ _id: leaderNPC.id, initiative: leaderInit});
-    await leaderNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, 0);
+    rankingUpdatePromises.push(leaderNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, 0));
 
     if ( interleaveNPCs ) {
       // Add in additional NPCs. Minus one for the leader.
@@ -255,7 +175,7 @@ async function rollAll(options={}) {
       for ( let i = 0; i < numAdditional; i += 1 ) {
         const currNPC = NPC.remaining.shift();
         updates.push({ _id: currNPC.id, initiative: leaderInit });
-        await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
+        rankingUpdatePromises.push(currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++));
       }
     }
   }
@@ -268,11 +188,11 @@ async function rollAll(options={}) {
     // Treat as PCs won b/c we are adding the PC first
     const numNPCs = interleaveNPCs ? numberNPCsInFirstGroup(PC.remaining.length, NPC.remaining.length, true) : 1;
     const currPC = PC.remaining.shift();
-    await currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
+    rankingUpdatePromises.push(currPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++));
     for ( let i = 0; i < numNPCs; i += 1 ) {
       const currNPC = NPC.remaining.shift();
       updates.push({ _id: currNPC.id, initiative: currPC.initiative });
-      await currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++);
+      rankingUpdatePromises.push(currNPC.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, rank++));
     }
   }
 
@@ -280,11 +200,14 @@ async function rollAll(options={}) {
   // To make things interesting, roll their initiatives.
   if ( NPC.remaining.length ) {
     // Shift the remainders' init rolls down to be below the minimum PC
-    const maxRemainingInit = Math.max.apply(null, NPC.remaining.map(c => c._zipInit));
+    const maxRemainingInit = Math.max.apply(null, NPC.remaining.map(c => c.initiative));
     const targetInit = NPC.remaining[0].initiative - 1;
     const shift = maxRemainingInit - targetInit;
-    NPC.remaining.forEach(c => updates.push({ _id: c.id, initiative: c._zipInit - shift }));
+    NPC.remaining.forEach(c => updates.push({ _id: c.id, initiative: c.initiative - shift }));
   }
+
+  // Update rankings.
+  await Promise.allSettled(rankingUpdatePromises);
 
   // Update NPC initiatives
   await this.updateEmbeddedDocuments("Combatant", updates);
@@ -363,6 +286,113 @@ PATCHES.BASIC.OVERRIDES = {
 };
 
 
+// ----- NOTE: Helper functions -----  //
+
+/* Flags
+To facilitate sorting without resorting to decimals to break initiative ties, use a flag
+to rank combatants.
+*/
+async function resetInitRank(combatant) {
+  return combatant.setFlag(MODULE_ID, FLAGS.COMBATANT.RANK, Number.NEGATIVE_INFINITY);
+}
+
+/**
+ * When interleaving, max number of NPCs in first group?
+ * @param {number} numPCs
+ * @param {number} numNPCs
+ * @param {bool} PCsWon
+ * @returns {number}
+ */
+function numberNPCsInFirstGroup(numPCs, numNPCs, PCsWon) {
+  if ( numNPCs < 1 ) return 0;
+  if ( numPCs >= numNPCs ) return 1; // E.g. pnpn or npnp
+  if ( !PCsWon && numPCs >= (numNPCs - 1) ) return 1; // E.g. npnpn
+
+  // Always tries to put NPCs in a final group.
+  const numGroups = PCsWon ? numPCs : (numPCs + 1);
+  return Math.floor(numNPCs / numGroups);
+}
+
+/**
+ * Select the combatant by highest bonus.
+ * @param {object} maxNPC
+ *   - @prop {number} initBonus
+ *   - @prop {Combatant|null} combatant
+ * @param {Combatant} c
+ * @returns {object} Same structure as maxNPC
+ */
+function selectByBonus(maxNPC, c) {
+  const bonus = CONFIG[MODULE_ID].initiativeBonus(c.token);
+  if ( bonus > maxNPC.initBonus ) {
+    maxNPC.initBonus = bonus;
+    maxNPC.combatant = c;
+  }
+  return maxNPC;
+}
+
+/**
+ * Select the combatant by highest initiative.
+ * @param {object} maxNPC
+ *   - @prop {number} initBonus
+ *   - @prop {Combatant|null} combatant
+ * @param {Combatant} c
+ * @returns {object} Same structure as maxNPC
+ */
+function selectByInitiative(maxNPC, c) {
+  if ( c.initiative > maxNPC.initBonus ) {
+    maxNPC.initBonus = c.initiative;
+    maxNPC.combatant = c;
+  }
+  return maxNPC;
+}
+
+/**
+ * Select the leader NPC.
+ * Select the candidate with the highest bonus; random otherwise.
+ * If NPC_LEADER_HIGHEST is enabled, use highest initiative instead.
+ * @param {Combatant[]} candidates
+ * @returns {Combatant}
+ */
+function selectNPCLeader(candidates) {
+  const leaderSelectionFn = Settings.get(Settings.KEYS.NPC_LEADER_HIGHEST_INIT) ? selectByInitiative : selectByBonus;
+  const leaderNPC = candidates.reduce(leaderSelectionFn, { initBonus: Number.NEGATIVE_INFINITY, combatant: null });
+
+  // Fall back on random selection
+  if ( !leaderNPC.combatant ) leaderNPC.combatant = candidates[Math.floor(Math.random() * candidates.length)];
+  return leaderNPC.combatant;
+}
+
+/**
+ * Roll initiative for a single NPC.
+ * @param {Combatant} npc
+ * @returns {number} The roll total for that NPC
+ */
+async function rollSingleNPC(npc) {
+  const roll = npc.getInitiativeRoll();
+  await roll.evaluate();
+  forceDSNRoll(roll); // Async but don't need to await.
+  return roll.total;
+}
+
+/**
+ * Force Dice-so-Nice roll even though it doesn't go to chat.
+ * https://gitlab.com/riccisi/foundryvtt-dice-so-nice/-/wikis/API/Roll
+ * @param {Roll} roll
+ */
+async function forceDSNRoll(roll) {
+  if ( !(MODULES_ACTIVE.DSN && Settings.get(Settings.KEYS.USE_DSN)) ) return;
+
+  // Issue #8
+  for ( const term of roll.terms ) {
+    if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "20";
+  }
+  await game.dice3d.showForRoll(roll, game.user, true); // Async, but need not await but for this issue.
+  for ( const term of roll.terms ) {
+    if ( term.constructor.name === "D20Die" ) term.constructor.DENOMINATION = "d";
+  }
+}
+
+
 /*
 PCs:      Init    Rank
 Riswynn   11.15   0
@@ -375,3 +405,5 @@ Morthos    5.12   null
 Ogre       2.08   null
 
 */
+
+
