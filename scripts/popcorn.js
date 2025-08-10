@@ -36,7 +36,7 @@ export class TimedDialog extends foundry.applications.api.DialogV2 {
   _onFirstRender(_context, _options) {
     const timeoutSeconds = this.options.timeoutSeconds ?? 30;
     super._onFirstRender(_context, _options);
-    console.log({_context, _options, dialog: this });
+    // console.log({_context, _options, dialog: this });
     const timingFn = async _ => {
       for ( let i = timeoutSeconds; i > 0; i -= 1 ) {
         await sleep(1000);

@@ -1,3 +1,7 @@
+## 0.3.2
+Refactor how the combatant rolling is done to limit the number of async calls.
+Update `Patcher` class to better handle Foundry namespaces in v13.
+
 ## 0.3.1
 Workaround for Dice-so-nice throwing an error when rolling for NPCs in dnd5e. Closes issue #8.
 
