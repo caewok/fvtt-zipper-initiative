@@ -1,3 +1,7 @@
+## 14.0.0
+Update `Patcher` class.
+Parallel Foundry version for version naming.
+
 ## 0.3.2
 Refactor how the combatant rolling is done to limit the number of async calls.
 Update `Patcher` class to better handle Foundry namespaces in v13.
